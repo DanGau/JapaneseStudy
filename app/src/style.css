@@ -86,6 +86,48 @@ mark { background: var(--mark); color: var(--ink); border-radius: 6px; padding: 
 .controls { display: flex; gap: 8px; align-items: center; }
 .controls .primary { margin: 0; flex: 1; }
 
+/* Words */
+.words-tile { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 20px; margin-bottom: 10px; background: linear-gradient(135deg, #2b4bd6, #a3407a); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+.words-tile .emoji { font-size: 40px; }
+.words-tile span:nth-child(2) { flex: 1; font-size: 14px; color: #e6e2ff; }
+.words-tile b { font-size: 19px; color: #fff; }
+.words-tile .go { font-size: 22px; }
+.deck h1 { font-size: 30px; }
+.tally { display: flex; gap: 8px; margin: 12px 0 4px; }
+.tally span { flex: 1; background: var(--panel); border-radius: 14px; padding: 8px; text-align: center; font-size: 13px; color: var(--muted); }
+.tally b { display: block; font-size: 22px; color: var(--ink); }
+.legend { color: var(--muted); font-size: 12px; margin: 18px 0 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.cell { aspect-ratio: 1; border-radius: 12px; font-size: 24px; background: var(--panel); border: 3px solid transparent; }
+.cell.new, .legend .new { border-color: var(--panel-2); opacity: 0.5; background: var(--panel-2); }
+.cell.learning, .legend .learning { border-color: var(--bad); background: var(--bad); }
+.cell.known, .legend .known { border-color: var(--gold); background: var(--gold); }
+.cell.learned, .legend .learned { border-color: var(--good); background: var(--good); }
+.cell.learning, .cell.known, .cell.learned { background: var(--panel); }
+.backup { display: flex; gap: 8px; }
+.backup > * { flex: 1; cursor: pointer; }
+.play { display: flex; flex-direction: column; }
+.play .bar .icon { width: 40px; height: 40px; }
+.card { flex: 1; margin: 12px 0; border-radius: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; position: relative; overflow: hidden; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5); animation: card-in 0.4s ease-out; min-height: 420px; }
+.card .emoji { font-size: 120px; line-height: 1.1; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35)); animation: bob 2.4s ease-in-out infinite, pop 0.5s ease-out; }
+.prompt-en { font-size: 30px; font-weight: 800; margin-top: 14px; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+.reveal-word { margin-top: 10px; transition: opacity 0.3s, transform 0.3s; }
+.reveal-word.hidden { opacity: 0; transform: translateY(10px); }
+.word-ro { font-size: 44px; font-weight: 800; color: #fff; text-shadow: 0 3px 12px rgba(0, 0, 0, 0.35); }
+.word-jp { font-size: 24px; color: rgba(255, 255, 255, 0.85); }
+.card.out-good { animation: out-good 0.35s ease-in forwards; }
+.card.out-again { animation: shake 0.3s; }
+.sparkles i { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #fff; opacity: 0.6; animation: twinkle 2.5s ease-in-out infinite; }
+.sparkles i:nth-child(1) { left: 12%; top: 18%; } .sparkles i:nth-child(2) { left: 82%; top: 12%; animation-delay: 0.6s; }
+.sparkles i:nth-child(3) { left: 20%; top: 72%; animation-delay: 1.2s; } .sparkles i:nth-child(4) { left: 88%; top: 64%; animation-delay: 0.3s; }
+.sparkles i:nth-child(5) { left: 50%; top: 8%; animation-delay: 0.9s; } .sparkles i:nth-child(6) { left: 8%; top: 45%; animation-delay: 1.5s; }
+.sparkles i:nth-child(7) { left: 92%; top: 38%; animation-delay: 1.8s; } .sparkles i:nth-child(8) { left: 60%; top: 88%; animation-delay: 0.4s; }
+.answers { display: flex; gap: 10px; }
+.answers > * { flex: 1; margin: 0; }
+@keyframes card-in { from { transform: translateY(20px) scale(0.96); opacity: 0; } }
+@keyframes out-good { to { transform: translateX(120%) rotate(12deg); opacity: 0; } }
+
 /* Intro */
 .big-thumb { height: 200px; border-radius: 22px; margin: 4px 0 12px; }
 .big-thumb .scene { width: 100%; height: 100%; display: block; }

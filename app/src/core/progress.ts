@@ -1,15 +1,19 @@
+import { grade as gradeWords, type Session, type WordCard } from './vocab'
+
 // Days are integers (local days since the epoch), passed in by the caller.
 
 /** A Leitner card: box 0 is due again the same day; each correct answer moves it up a box. */
 export type Card = { box: number; due: number }
-export type Progress = { xp: number; stars: Record<string, number>; streak: number; lastDay: number; cards: Record<string, Card> }
+/** `cards` are grammar quiz questions; `words` are vocabulary (see vocab.ts). */
+export type Progress = { xp: number; stars: Record<string, number>; streak: number; lastDay: number; cards: Record<string, Card>; words: Record<string, WordCard> }
 
 const INTERVALS = [0, 1, 3, 7, 14, 30]
 export const XP_CORRECT = 10
 export const XP_PERFECT = 20
 export const XP_REVIEW = 5
+export const XP_WORD = 2
 
-export const empty = (): Progress => ({ xp: 0, stars: {}, streak: 0, lastDay: -1, cards: {} })
+export const empty = (): Progress => ({ xp: 0, stars: {}, streak: 0, lastDay: -1, cards: {}, words: {} })
 
 export const cardKey = (chapterId: string, question: number) => `${chapterId}:${question}`
 
@@ -52,7 +56,13 @@ export function finishReview(p: Progress, results: Record<string, boolean>, day:
   return { ...p, ...studied(p, day), xp: p.xp + correct * XP_REVIEW, cards }
 }
 
-/** Keys of cards due by `day`, most overdue first. */
+/** Records a vocabulary session: SM-2 grades each word's first answer. */
+export function finishWords(p: Progress, s: Session, day: number): Progress {
+  const known = Object.values(s.first).filter(Boolean).length
+  return { ...p, ...studied(p, day), xp: p.xp + known * XP_WORD, words: gradeWords(p.words, s, day) }
+}
+
+/** Keys of grammar cards due by `day`, most overdue first. */
 export const due = (p: Progress, day: number) =>
   Object.keys(p.cards).filter((k) => p.cards[k].due <= day).sort((a, b) => p.cards[a].due - p.cards[b].due)
 

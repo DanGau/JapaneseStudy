@@ -13,6 +13,15 @@ The learner knows kana and basic sentences, and wants grammar that sticks.
 9. **Rewards.** Stars per chapter unlock the next; XP and a daily streak.
 10. **Plain English.** Explanations are short, full sentences. Quiz answers are whole simple sentences, never fragments.
 
+## Words
+
+Picture flashcards in `app/src/content/words.ts`. A card shows the picture and says "Train is…", then reveals and speaks the Japanese, then moves on by itself.
+
+- **Random order**, due words first, then up to 8 new words per session.
+- **Repeat until known.** A word you don't mark "I knew it" returns 3 cards later in the same session.
+- **SM-2 scheduling** (the SuperMemo/Anki method) grades each word by your first answer that session: intervals of 1 day, 3 days, then growing by the word's ease factor. A miss resets the word to tomorrow.
+- **Saved on the device**, with a JSON backup and restore on the Words screen. Word ids stay fixed so saves survive content edits.
+
 ## Content
 
 Chapters live in `app/src/content/chapters.ts`. Japanese text uses furigana markup: `{漢字|かんじ}` for readings, `[[...]]` to highlight the grammar, and spaces between words (romaji and kana display use them).

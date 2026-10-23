@@ -20,3 +20,7 @@ export type Question = Choice | Build
 export type Chapter = { id: string; title: string; jpTitle: string; grammar: Grammar; story: Panel[]; quiz: Question[] }
 
 export const BLANK = '＿＿'
+
+export type Theme = 'travel' | 'food' | 'nature' | 'animals' | 'town' | 'time' | 'actions'
+/** A vocabulary word; `id` is stable so saved progress survives edits to the other fields. */
+export type Vocab = { id: string; jp: string; en: string; emoji: string; theme: Theme }

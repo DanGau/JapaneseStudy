@@ -6,6 +6,7 @@ import { display, el, esc, jp, ro, say, stars } from './html'
 import { quiz } from './quiz'
 import { load, save, today } from './store'
 import { speak } from './speak'
+import { deck } from './words'
 
 const REVIEW_SIZE = 10
 const IDS = CHAPTERS.map((c) => c.id)
@@ -25,6 +26,7 @@ export function start(root: HTMLElement) {
     else if (page === 'grammar' && chapter) grammar(root, chapter)
     else if (page === 'quiz' && chapter) chapterQuiz(root, chapter)
     else if (page === 'review') review(root)
+    else if (page === 'words') deck(root, { get: () => saved, set: (s) => ((saved = s), commit()) })
     else map(root)
   }
   addEventListener('hashchange', route)
@@ -40,6 +42,7 @@ function map(root: HTMLElement) {
       <div><h1>狐の道</h1><p class="sub">Kitsune Road</p></div>
       <div class="stats"><span title="Streak">🔥 ${streak(p, day)}</span><span title="XP">✨ ${p.xp}</span></div>
     </header>
+    <a class="words-tile" href="#/words"><span class="emoji">🎴</span><span><b>Words</b><br>Picture flashcards that play on their own</span><span class="go">▶</span></a>
     <div class="actions">
       <a class="review ${dueCount ? '' : 'idle'}" href="${dueCount ? '#/review' : '#/'}">🃏 Review ${dueCount ? `<b>${dueCount} due</b>` : '— all caught up'}</a>
     </div>
