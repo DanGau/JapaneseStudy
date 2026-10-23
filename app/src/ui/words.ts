@@ -7,9 +7,9 @@ import { speak, speakEnglish } from './speak'
 import { parseSaved, today, type Saved } from './store'
 
 const NEW_PER_SESSION = 8
-/** Autoplay timing: prompt, then the answer, then the next card if the learner doesn't tap. */
-const REVEAL_MS = 2800
-const ADVANCE_MS = 3800
+/** Autoplay timing: “Train is…”, then “densha”, then the next card if the learner doesn't tap Got it. */
+const REVEAL_MS = 2000
+const ADVANCE_MS = 3500
 const BY_ID = new Map(WORDS.map((w) => [w.id, w]))
 const IDS = WORDS.map((w) => w.id)
 
@@ -27,7 +27,7 @@ export function deck(root: HTMLElement, store: Store) {
     <header class="bar"><a class="close" href="#/">✕</a></header>
     <p class="kicker">Vocabulary</p>
     <h1>Words</h1>
-    <p class="goal">Pictures and sounds that play on their own. Tap <b>I knew it</b> when you remember a word. Words you miss come back until you know them, then again over the next days and weeks at the best time to remember them.</p>
+    <p class="goal">Each card plays by itself: “Train is… densha.” Tap <b>Got it</b> when you knew the word. Words you don’t tap loop around until you get them all. Then they come back over the next days and weeks, right when you’re about to forget.</p>
     <div class="tally">
       <span><b>${dueNow}</b> due today</span><span><b>${counts.known + counts.learned}</b> known</span><span><b>${counts.learned}</b> long-term</span>
     </div>
@@ -70,9 +70,9 @@ function play(root: HTMLElement, store: Store, start: Session) {
   let timers: number[] = []
   let paused = false
   const screen = el(`<div class="screen play">
-    <header class="bar"><a class="close" href="#/words">✕</a><div class="meter"><div></div></div><button class="icon pause">⏸</button></header>
+    <header class="bar"><a class="close" href="#/words">✕</a><div class="meter"><div></div></div><span class="count"></span><button class="icon pause">⏸</button></header>
     <div class="card"></div>
-    <div class="answers"><button class="secondary again">↺ Again</button><button class="primary knew">✓ I knew it</button></div>
+    <button class="primary knew">✓ Got it</button>
   </div>`)
   const card = screen.querySelector<HTMLElement>('.card')!
   const clear = () => (timers.forEach(clearTimeout), (timers = []))
@@ -83,10 +83,13 @@ function play(root: HTMLElement, store: Store, start: Session) {
     if (!session.queue.length) return done()
     const w = BY_ID.get(session.queue[0])!
     const [a, b] = THEME_COLORS[w.theme]
-    screen.querySelector<HTMLElement>('.meter div')!.style.width = `${((total - new Set(session.queue).size) / total) * 100}%`
+    const got = total - session.queue.length
+    screen.querySelector<HTMLElement>('.meter div')!.style.width = `${(got / total) * 100}%`
+    screen.querySelector<HTMLElement>('.count')!.textContent = `${got}/${total}`
     card.style.background = `radial-gradient(circle at 50% 35%, ${b}, ${a})`
     card.innerHTML = `<div class="sparkles">${'<i></i>'.repeat(8)}</div><div class="emoji">${w.emoji}</div>
       <p class="prompt-en">${esc(w.en)} is…</p><div class="reveal-word hidden">${wordHtml(w)}</div>`
+    card.classList.toggle('looped', w.id in session.first)
     speakEnglish(`${w.en} is`)
     if (!paused) later(REVEAL_MS, reveal)
   }
@@ -98,9 +101,9 @@ function play(root: HTMLElement, store: Store, start: Session) {
   const next = (knew: boolean) => {
     if (!knew || card.querySelector('.reveal-word.hidden')) card.querySelector('.reveal-word')!.classList.remove('hidden')
     session = answer(session, knew)
-    card.classList.add(knew ? 'out-good' : 'out-again')
+    card.classList.add(knew ? 'out-good' : 'out-next')
     clear()
-    later(knew ? 350 : 900, () => (card.classList.remove('out-good', 'out-again'), show()))
+    later(350, () => (card.classList.remove('out-good', 'out-next'), show()))
   }
   const done = () => {
     const day = today()
@@ -110,15 +113,14 @@ function play(root: HTMLElement, store: Store, start: Session) {
     root.replaceChildren(el(`<div class="screen results">
       <div class="burst">${'<i></i>'.repeat(24)}</div>
       <p class="big-stars">🎴</p>
-      <p class="detail">${total} words practiced · ${firstTry} known on the first try · +${firstTry * XP_WORD} XP</p>
-      <p class="hint">Missed words come back tomorrow. Known words come back later and later.</p>
+      <p class="detail">You got all ${total} words! ${firstTry} on the first try · +${firstTry * XP_WORD} XP</p>
+      <p class="hint">Words that took a few loops come back tomorrow. The rest come back later and later.</p>
       <a class="primary" href="#/words">Back to words</a>
       <a class="secondary" href="#/">Map</a>
     </div>`))
   }
 
   screen.querySelector('.knew')!.addEventListener('click', () => next(true))
-  screen.querySelector('.again')!.addEventListener('click', () => next(false))
   screen.querySelector('.pause')!.addEventListener('click', (e) => {
     paused = !paused
     ;(e.target as HTMLElement).textContent = paused ? '▶' : '⏸'

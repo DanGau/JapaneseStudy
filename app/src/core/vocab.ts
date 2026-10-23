@@ -8,8 +8,6 @@ export type Session = { queue: string[]; first: Record<string, boolean> }
 
 const MIN_EASE = 1.3
 const START_EASE = 2.5
-/** How many cards later a missed word comes back within the session. */
-export const RETRY_GAP = 3
 
 export function sm2(card: WordCard | undefined, knew: boolean, day: number): WordCard {
   const c = card ?? { ease: START_EASE, interval: 0, reps: 0, lapses: 0, due: day }
@@ -26,13 +24,11 @@ export function startSession(ids: string[], cards: Record<string, WordCard>, day
   return { queue: shuffle([...due, ...fresh], seed), first: {} }
 }
 
-/** Answers the showing word. Known words leave the queue; others return RETRY_GAP cards later. */
+/** Answers the showing word. Known words leave the queue; others go to the back, so the set loops until all are known. */
 export function answer(s: Session, knew: boolean): Session {
   const [id, ...rest] = s.queue
   const first = id in s.first ? s.first : { ...s.first, [id]: knew }
-  if (knew) return { queue: rest, first }
-  const at = Math.min(RETRY_GAP, rest.length)
-  return { queue: [...rest.slice(0, at), id, ...rest.slice(at)], first }
+  return { queue: knew ? rest : [...rest, id], first }
 }
 
 /** Applies a finished session's first answers to the saved cards. */

@@ -19,13 +19,13 @@ test('session takes due words and a limited number of new ones', () => {
   expect([...s.queue].sort()).toEqual(['a', 'c', 'd'])
 })
 
-test('a missed word returns later and is graded by its first answer', () => {
+test('a missed word loops to the back and is graded by its first answer', () => {
   let s = { queue: ['a', 'b', 'c', 'd', 'e'], first: {} }
   s = answer(s, false)
-  expect(s.queue).toEqual(['b', 'c', 'd', 'a', 'e'])
-  s = answer(answer(answer(answer(s, true), true), true), true)
-  expect(s.queue).toEqual(['e'])
-  s = answer(answer(s, false), true)
+  expect(s.queue).toEqual(['b', 'c', 'd', 'e', 'a'])
+  s = answer(answer(answer(s, true), true), true)
+  expect(s.queue).toEqual(['e', 'a'])
+  s = answer(answer(answer(s, false), true), true)
   expect(s.queue).toEqual([])
   expect(s.first).toEqual({ a: false, b: true, c: true, d: true, e: false })
   const cards = grade({}, s, 0)
