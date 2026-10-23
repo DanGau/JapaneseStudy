@@ -1,0 +1,9 @@
+{
+  "name": "Kitsune Road",
+  "short_name": "Kitsune",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b0a1c",
+  "theme_color": "#0b0a1c",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
