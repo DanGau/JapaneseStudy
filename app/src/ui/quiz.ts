@@ -1,6 +1,6 @@
 import { shuffle } from '../core/rng'
 import { BLANK, type Build, type Choice, type Question } from '../core/types'
-import { el, esc, ruby } from './html'
+import { el, esc, say } from './html'
 import { speak } from './speak'
 
 /** Runs the questions in order, then calls `done` with whether each was right. */
@@ -22,8 +22,8 @@ export function quiz(root: HTMLElement, title: string, questions: Question[], se
       results.push(ok)
       const fb = screen.querySelector<HTMLElement>('.feedback')!
       fb.className = `feedback show ${ok ? 'good' : 'bad'}`
-      fb.innerHTML = `<p class="verdict">${ok ? '正解！ Correct!' : 'おしい！ Not quite.'}</p>
-        <p class="jp reveal">${ruby(reveal)} <button class="icon say">🔊</button></p>
+      fb.innerHTML = `<p class="verdict">${ok ? 'Correct!' : 'Not quite. The answer is:'}</p>
+        <div class="reveal"><p class="said">${say(reveal)}</p><button class="icon say">🔊</button></div>
         ${why ? `<p class="why">${esc(why)}</p>` : ''}
         <button class="primary next">Continue</button>`
       fb.querySelector('.say')!.addEventListener('click', () => speak(reveal))
@@ -39,12 +39,12 @@ export function quiz(root: HTMLElement, title: string, questions: Question[], se
 
 type Answer = (ok: boolean, reveal: string, why?: string) => void
 
+/** Shows each option as the whole sentence, so the learner compares complete sentences. */
 function choice(body: HTMLElement, q: Choice, seed: number, answer: Answer) {
-  const [before, after] = q.jp.split(BLANK)
-  body.innerHTML = `<p class="prompt">Fill the blank</p>
-    <p class="jp sentence">${ruby(before)}<span class="blank">？</span>${ruby(after)}</p>
-    <p class="en">${esc(q.en)}</p>
-    <div class="options">${shuffle(q.options, seed).map((o) => `<button class="option" data-o="${esc(o)}">${ruby(o)}</button>`).join('')}</div>`
+  const sentence = (option: string) => q.jp.replace(BLANK, option)
+  body.innerHTML = `<p class="prompt">Which sentence means:</p>
+    <p class="big">“${esc(q.en)}”</p>
+    <div class="options">${shuffle(q.options, seed).map((o) => `<button class="option" data-o="${esc(o)}">${say(sentence(o))}</button>`).join('')}</div>`
   for (const b of body.querySelectorAll<HTMLButtonElement>('.option')) {
     b.addEventListener('click', () => {
       const ok = b.dataset.o === q.options[0]
@@ -53,16 +53,17 @@ function choice(body: HTMLElement, q: Choice, seed: number, answer: Answer) {
         if (o.dataset.o === q.options[0]) o.classList.add('right')
       }
       if (!ok) b.classList.add('wrong')
-      answer(ok, before + q.options[0] + after, q.why)
+      answer(ok, sentence(q.options[0]), q.why)
     })
   }
 }
 
 function build(body: HTMLElement, q: Build, seed: number, answer: Answer) {
-  body.innerHTML = `<p class="prompt">Build the sentence</p>
-    <p class="en big">${esc(q.en)}</p>
+  body.innerHTML = `<p class="prompt">Tap the words in order to say:</p>
+    <p class="big">“${esc(q.en)}”</p>
     <div class="line"></div>
-    <div class="tiles">${shuffle([...q.tiles, ...(q.decoys ?? [])], seed).map((t, i) => `<button class="tile" data-i="${i}" data-t="${esc(t)}">${ruby(t)}</button>`).join('')}</div>
+    <p class="hint">Tap a word again to take it back.</p>
+    <div class="tiles">${shuffle([...q.tiles, ...(q.decoys ?? [])], seed).map((t) => `<button class="tile" data-t="${esc(t)}">${say(t)}</button>`).join('')}</div>
     <button class="primary check" disabled>Check</button>`
   const line = body.querySelector<HTMLElement>('.line')!
   const bank = body.querySelector<HTMLElement>('.tiles')!
@@ -75,10 +76,10 @@ function build(body: HTMLElement, q: Build, seed: number, answer: Answer) {
   }
   check.addEventListener('click', () => {
     const chosen = [...line.querySelectorAll<HTMLElement>('.tile')].map((t) => t.dataset.t!)
-    const ok = chosen.join('') === q.tiles.join('')
+    const ok = chosen.join(' ') === q.tiles.join(' ')
     for (const t of body.querySelectorAll<HTMLButtonElement>('.tile')) t.disabled = true
     line.classList.add(ok ? 'right' : 'wrong')
     check.remove()
-    answer(ok, q.tiles.join(''))
+    answer(ok, q.tiles.join(' ') + '。')
   })
 }

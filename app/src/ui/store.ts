@@ -1,11 +1,11 @@
 import { empty, type Progress } from '../core/progress'
 
-export type Saved = { progress: Progress; furigana: boolean }
+export type Saved = { progress: Progress; romaji: boolean; kanji: boolean }
 
 const KEY = 'japanese-study'
 
 export function load(): Saved {
-  const fresh = { progress: empty(), furigana: true }
+  const fresh = { progress: empty(), romaji: true, kanji: false }
   try {
     const raw = localStorage.getItem(KEY)
     return raw ? { ...fresh, ...JSON.parse(raw) } : fresh

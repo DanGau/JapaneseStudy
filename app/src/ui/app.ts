@@ -2,7 +2,7 @@ import { scene } from '../art/scene'
 import { due, finishChapter, finishReview, starsFor, streak, unlocked, XP_CORRECT, XP_PERFECT, XP_REVIEW } from '../core/progress'
 import type { Chapter, Question } from '../core/types'
 import { CHAPTERS } from '../content/chapters'
-import { el, esc, ruby, stars } from './html'
+import { display, el, esc, jp, ro, say, stars } from './html'
 import { quiz } from './quiz'
 import { load, save, today } from './store'
 import { speak } from './speak'
@@ -12,7 +12,7 @@ const IDS = CHAPTERS.map((c) => c.id)
 
 let saved = load()
 
-const commit = () => (save(saved), document.body.classList.toggle('no-furigana', !saved.furigana))
+const commit = () => (save(saved), Object.assign(display, { romaji: saved.romaji, kanji: saved.kanji }))
 
 export function start(root: HTMLElement) {
   commit()
@@ -20,7 +20,8 @@ export function start(root: HTMLElement) {
     const [, page, id] = location.hash.split('/')
     const chapter = CHAPTERS.find((c) => c.id === id)
     window.scrollTo(0, 0)
-    if (page === 'story' && chapter) story(root, chapter)
+    if (page === 'intro' && chapter) intro(root, chapter)
+    else if (page === 'story' && chapter) story(root, chapter)
     else if (page === 'grammar' && chapter) grammar(root, chapter)
     else if (page === 'quiz' && chapter) chapterQuiz(root, chapter)
     else if (page === 'review') review(root)
@@ -41,24 +42,46 @@ function map(root: HTMLElement) {
     </header>
     <div class="actions">
       <a class="review ${dueCount ? '' : 'idle'}" href="${dueCount ? '#/review' : '#/'}">🃏 Review ${dueCount ? `<b>${dueCount} due</b>` : '— all caught up'}</a>
-      <button class="toggle">${saved.furigana ? 'ふりがな ON' : 'ふりがな OFF'}</button>
+    </div>
+    <div class="settings">
+      <button class="toggle" data-key="romaji">Romaji: <b>${saved.romaji ? 'on' : 'off'}</b></button>
+      <button class="toggle" data-key="kanji">Japanese: <b>${saved.kanji ? 'kanji' : 'kana'}</b></button>
     </div>
     <ol class="path">${CHAPTERS.map((c, i) => {
       const open = unlocked(IDS, p, i)
       const s = p.stars[c.id] ?? 0
-      return `<li><a class="chapter ${open ? '' : 'locked'}" href="${open ? `#/story/${c.id}` : '#/'}">
+      return `<li><a class="chapter ${open ? '' : 'locked'}" href="${open ? `#/intro/${c.id}` : '#/'}">
         <div class="thumb">${scene(c.story[0].scene)}</div>
-        <div class="info"><span class="num">${i + 1}</span><h2 class="jp">${ruby(c.jpTitle)}</h2><p>${esc(c.title)}</p>
+        <div class="info"><span class="num">${i + 1}</span><h2>${esc(c.title)}</h2><p>${say(c.jpTitle)}</p>
         <p class="pattern">${open ? esc(c.grammar.pattern) : '🔒 Finish the last chapter'}</p><p class="stars">${stars(s)}</p></div>
       </a></li>`
     }).join('')}</ol>
   </div>`)
-  screen.querySelector('.toggle')!.addEventListener('click', () => {
-    saved = { ...saved, furigana: !saved.furigana }
-    commit()
-    map(root)
-  })
+  for (const b of screen.querySelectorAll<HTMLElement>('.toggle')) {
+    b.addEventListener('click', () => {
+      const key = b.dataset.key as 'romaji' | 'kanji'
+      saved = { ...saved, [key]: !saved[key] }
+      commit()
+      map(root)
+    })
+  }
   root.replaceChildren(screen)
+}
+
+function intro(root: HTMLElement, c: Chapter) {
+  root.replaceChildren(el(`<div class="screen intro">
+    <header class="bar"><a class="close" href="#/">✕</a></header>
+    <div class="thumb big-thumb">${scene(c.story[0].scene)}</div>
+    <p class="kicker">Chapter ${IDS.indexOf(c.id) + 1}</p>
+    <h1>${esc(c.title)}</h1>
+    <p class="goal">You will learn how to say: <b>${esc(c.grammar.meaning)}</b></p>
+    <ol class="steps">
+      <li><b>Read the story.</b> Each line is a short Japanese sentence. Tap 🔊 to hear it and EN to see the English.</li>
+      <li><b>Learn the pattern.</b> A short explanation with examples.</li>
+      <li><b>Practice.</b> ${c.quiz.length} questions. Get one right to unlock the next chapter.</li>
+    </ol>
+    <a class="primary" href="#/story/${c.id}">Start the story ▶</a>
+  </div>`))
 }
 
 function story(root: HTMLElement, c: Chapter) {
@@ -67,7 +90,8 @@ function story(root: HTMLElement, c: Chapter) {
     <div class="stage"></div>
     <header class="bar over"><a class="close" href="#/">✕</a><div class="dots">${c.story.map(() => '<i></i>').join('')}</div></header>
     <section class="dialogue">
-      <p class="speaker"></p><p class="jp line"></p><p class="en hidden"></p><div class="words"></div>
+      <p class="speaker"></p><p class="spoken"></p><p class="en hidden"></p><div class="words"></div>
+      <p class="hint">🔊 hear it · EN shows the English · Next to continue</p>
       <div class="controls"><button class="icon say">🔊</button><button class="icon en-btn">EN</button><button class="primary next">Next ▶</button></div>
     </section>
   </div>`)
@@ -76,12 +100,12 @@ function story(root: HTMLElement, c: Chapter) {
     const p = c.story[i]
     $('.stage').innerHTML = scene(p.scene)
     $('.speaker').textContent = p.speaker
-    $('.line').innerHTML = ruby(p.jp)
+    $('.spoken').innerHTML = say(p.jp)
     $('.en').textContent = p.en
     $('.en').classList.add('hidden')
-    $('.words').innerHTML = (p.words ?? []).map((w) => `<span class="word"><span class="jp">${ruby(w.jp)}</span> ${esc(w.en)}</span>`).join('')
+    $('.words').innerHTML = (p.words ?? []).map((w) => `<span class="word"><b>${ro(w.jp)}</b> ${jp(w.jp)} = ${esc(w.en)}</span>`).join('')
     screen.querySelectorAll('.dots i').forEach((d, j) => d.classList.toggle('on', j <= i))
-    $('.next').textContent = i === c.story.length - 1 ? 'Grammar ▶' : 'Next ▶'
+    $('.next').textContent = i === c.story.length - 1 ? 'Learn the pattern ▶' : 'Next ▶'
     $('.dialogue').classList.remove('pop')
     void $('.dialogue').offsetWidth
     $('.dialogue').classList.add('pop')
@@ -99,12 +123,12 @@ function grammar(root: HTMLElement, c: Chapter) {
   const g = c.grammar
   const screen = el(`<div class="screen grammar">
     <header class="bar"><a class="close" href="#/">✕</a></header>
-    <p class="kicker">Grammar spotlight</p>
-    <h1 class="pattern jp">${esc(g.pattern)}</h1>
+    <p class="kicker">Step 2 of 3 · Learn the pattern</p>
+    <h1 class="pattern">${ro(g.pattern)}</h1><p class="pattern-jp">${jp(g.pattern)}</p>
     <p class="meaning">${esc(g.meaning)}</p>
     <p class="how">${esc(g.how)}</p>
-    <ul class="examples">${g.examples.map((e, i) => `<li><button class="icon say" data-i="${i}">🔊</button><div><p class="jp">${ruby(e.jp)}</p><p class="en">${esc(e.en)}</p></div></li>`).join('')}</ul>
-    <a class="primary" href="#/quiz/${c.id}">Start quiz ▶</a>
+    <ul class="examples">${g.examples.map((e, i) => `<li><button class="icon say" data-i="${i}">🔊</button><div><p class="said">${say(e.jp)}</p><p class="en">${esc(e.en)}</p></div></li>`).join('')}</ul>
+    <a class="primary" href="#/quiz/${c.id}">Practice: ${c.quiz.length} questions ▶</a>
     <a class="secondary" href="#/story/${c.id}">↺ Replay story</a>
   </div>`)
   for (const b of screen.querySelectorAll<HTMLElement>('.say')) b.addEventListener('click', () => speak(g.examples[Number(b.dataset.i)].jp))
@@ -112,14 +136,14 @@ function grammar(root: HTMLElement, c: Chapter) {
 }
 
 function chapterQuiz(root: HTMLElement, c: Chapter) {
-  quiz(root, c.grammar.pattern, c.quiz, Date.now(), (results) => {
+  quiz(root, 'Step 3 of 3 · Practice', c.quiz, Date.now(), (results) => {
     const correct = results.filter(Boolean).length
     saved = { ...saved, progress: finishChapter(saved.progress, c.id, results, today()) }
     commit()
     const xp = correct * XP_CORRECT + (correct === results.length ? XP_PERFECT : 0)
     const next = CHAPTERS[IDS.indexOf(c.id) + 1]
     finish(root, stars(starsFor(correct, results.length)), `${correct}/${results.length} correct · +${xp} XP`,
-      next ? `<a class="primary" href="#/story/${next.id}">Next: ${esc(next.title)} ▶</a>` : '<p class="end">You finished every chapter. More coming soon!</p>',
+      next ? `<a class="primary" href="#/intro/${next.id}">Next: ${esc(next.title)} ▶</a>` : '<p class="end">You finished every chapter. More coming soon!</p>',
       () => chapterQuiz(root, c))
   })
 }

@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
 import { parse } from '../core/furigana'
+import { romanizable } from '../core/romaji'
 import { BLANK } from '../core/types'
 import { CHAPTERS } from './chapters'
 
@@ -7,10 +8,13 @@ const markups = CHAPTERS.flatMap((c) => [
   c.jpTitle,
   ...c.grammar.examples.map((e) => e.jp),
   ...c.story.flatMap((p) => [p.jp, ...(p.words ?? []).map((w) => w.jp)]),
-  ...c.quiz.flatMap((q) => (q.kind === 'choice' ? [q.jp, ...q.options] : [...q.tiles, ...(q.decoys ?? [])])),
+  ...c.quiz.flatMap((q) => (q.kind === 'choice' ? q.options.map((o) => q.jp.replace(BLANK, o)) : [...q.tiles, ...(q.decoys ?? [])])),
 ])
 
-test.each(markups)('furigana parses: %s', (m) => expect(() => parse(m)).not.toThrow())
+test.each(markups)('parses and has romaji: %s', (m) => {
+  expect(() => parse(m)).not.toThrow()
+  expect(romanizable(m)).toBe(true)
+})
 
 test('chapter ids are unique', () => {
   expect(new Set(CHAPTERS.map((c) => c.id)).size).toBe(CHAPTERS.length)
