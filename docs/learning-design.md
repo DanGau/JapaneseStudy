@@ -20,6 +20,9 @@ Picture flashcards in `app/src/content/words.ts`. A card shows the picture and s
 - **Random order**, due words first, then up to 8 new words per session.
 - **Loop until all are got.** One button, **Got it**. A word you don't tap goes to the back of the line; the session ends when every word is got.
 - **SM-2 scheduling** (the SuperMemo/Anki method) grades each word by your first answer that session: intervals of 1 day, 3 days, then growing by the word's ease factor. A miss resets the word to tomorrow.
+- **Recall first, aloud.** A 3-second countdown with a "say it out loud" cue comes before the reveal (testing effect, production effect).
+- **Memory hooks.** Each word has a keyword-method hook: an English sound-alike tied to the meaning. `chapters.test.ts` requires one per word.
+- **Both directions.** Words got twice in a row sometimes play Japanese first, with the picture hidden until the reveal.
 - **Saved on the device**, with a JSON backup and restore on the Words screen. Word ids stay fixed so saves survive content edits.
 
 ## Content

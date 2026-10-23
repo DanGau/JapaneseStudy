@@ -36,6 +36,7 @@ test.each(CHAPTERS)('$id: story highlights the grammar and quiz is well formed',
   }
 })
 
-test('word ids are unique', () => {
+test('word ids are unique and every word has a memory hook', () => {
   expect(new Set(WORDS.map((w) => w.id)).size).toBe(WORDS.length)
+  for (const w of WORDS) expect(w.hook, w.id).toBeTruthy()
 })

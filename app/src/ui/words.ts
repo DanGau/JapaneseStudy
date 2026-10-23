@@ -7,9 +7,11 @@ import { speak, speakEnglish } from './speak'
 import { parseSaved, today, type Saved } from './store'
 
 const NEW_PER_SESSION = 8
-/** Autoplay timing: “Train is…”, then “densha”, then the next card if the learner doesn't tap Got it. */
-const REVEAL_MS = 2000
-const ADVANCE_MS = 3500
+/** Autoplay timing: “Train is…”, a pause to recall and say it aloud, “densha”, then the next card if the learner doesn't tap Got it. */
+const REVEAL_MS = 3000
+const ADVANCE_MS = 4500
+/** Words answered right this many times in a row sometimes play reversed (Japanese first). */
+const REVERSE_AFTER = 2
 const BY_ID = new Map(WORDS.map((w) => [w.id, w]))
 const IDS = WORDS.map((w) => w.id)
 
@@ -33,6 +35,14 @@ export function deck(root: HTMLElement, store: Store) {
     </div>
     ${dueNow + fresh ? `<button class="primary go">Start: ${dueNow} review + ${fresh} new ▶</button>` : '<p class="end">All done for today. Come back tomorrow!</p>'}
     <p class="legend"><i class="new"></i>new <i class="learning"></i>learning <i class="known"></i>known <i class="learned"></i>long-term</p>
+    <details class="science"><summary>🧠 Why this works</summary><ul>
+      <li><b>Recall first.</b> Trying to remember before the answer shows builds memory far better than rereading (the testing effect).</li>
+      <li><b>Say it out loud.</b> Speaking a word makes it stick better than reading it silently (the production effect).</li>
+      <li><b>Memory hooks.</b> A silly English sound-alike linked to the meaning, like “dense crowds pack the densha”, is a proven shortcut for new words (the keyword method).</li>
+      <li><b>Picture + sound + text.</b> The same word stored in several ways is easier to find again (dual coding).</li>
+      <li><b>Both directions.</b> Known words sometimes play Japanese first, so you can recognize them as well as recall them.</li>
+      <li><b>Spaced repetition.</b> Each word comes back just before you would forget it, at longer and longer gaps (SM-2, the method behind Anki).</li>
+    </ul></details>
     <div class="grid">${WORDS.map((w) => `<button class="cell ${strength(cards[w.id])}" data-id="${w.id}" title="${esc(w.en)}">${w.emoji}</button>`).join('')}</div>
     <p class="hint">Tap a picture to hear it. Your progress is saved on this device.</p>
     <div class="backup"><button class="secondary save">⬇ Save backup</button><label class="secondary">⬆ Restore<input type="file" accept="application/json" hidden></label></div>
@@ -87,15 +97,25 @@ function play(root: HTMLElement, store: Store, start: Session) {
     screen.querySelector<HTMLElement>('.meter div')!.style.width = `${(got / total) * 100}%`
     screen.querySelector<HTMLElement>('.count')!.textContent = `${got}/${total}`
     card.style.background = `radial-gradient(circle at 50% 35%, ${b}, ${a})`
-    card.innerHTML = `<div class="sparkles">${'<i></i>'.repeat(8)}</div><div class="emoji">${w.emoji}</div>
-      <p class="prompt-en">${esc(w.en)} is…</p><div class="reveal-word hidden">${wordHtml(w)}</div>`
+    const reversed = (store.get().progress.words[w.id]?.reps ?? 0) >= REVERSE_AFTER && (hash(w.id) + today()) % 2 === 1
+    const cue = `<p class="cue">🗣 Say it out loud</p><div class="timer"><div style="animation-duration:${REVEAL_MS}ms"></div></div>`
+    card.innerHTML = `<div class="sparkles">${'<i></i>'.repeat(8)}</div>` + (reversed
+      ? `<div class="emoji veiled">${w.emoji}</div><div class="prompt-jp">${wordHtml(w)}</div><p class="prompt-en small">…is what in English?</p>${cue}
+         <div class="reveal-word hidden"><p class="word-ro">${esc(w.en)}</p>${hookHtml(w)}</div>`
+      : `<div class="emoji">${w.emoji}</div><p class="prompt-en">${esc(w.en)} is…</p>${cue}
+         <div class="reveal-word hidden">${wordHtml(w)}${hookHtml(w)}</div>`)
     card.classList.toggle('looped', w.id in session.first)
-    speakEnglish(`${w.en} is`)
+    card.classList.toggle('reversed', reversed)
+    if (reversed) speak(w.jp, 0.8)
+    else speakEnglish(`${w.en} is`)
     if (!paused) later(REVEAL_MS, reveal)
   }
   const reveal = () => {
     card.querySelector('.reveal-word')!.classList.remove('hidden')
-    speak(BY_ID.get(session.queue[0])!.jp, 0.8)
+    card.classList.add('revealed')
+    const w = BY_ID.get(session.queue[0])!
+    if (card.classList.contains('reversed')) speakEnglish(w.en)
+    else speak(w.jp, 0.8)
     if (!paused) later(ADVANCE_MS, () => next(false))
   }
   const next = (knew: boolean) => {
@@ -139,3 +159,6 @@ function play(root: HTMLElement, store: Store, start: Session) {
 }
 
 const wordHtml = (w: Vocab) => `<p class="word-ro">${ro(w.jp)}</p><p class="word-jp">${jp(w.jp)}</p>`
+// Hooks are trusted content with <i> markup, so they are not escaped.
+const hookHtml = (w: Vocab) => `<p class="hook">💡 ${w.hook}</p>`
+const hash = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7)
