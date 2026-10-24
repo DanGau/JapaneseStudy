@@ -3,6 +3,7 @@ import { parse } from '../core/furigana'
 import { romanizable } from '../core/romaji'
 import { BLANK } from '../core/types'
 import { CHAPTERS } from './chapters'
+import { SENTENCES } from './sentences'
 import { WORDS } from './words'
 
 const markups = CHAPTERS.flatMap((c) => [
@@ -11,6 +12,7 @@ const markups = CHAPTERS.flatMap((c) => [
   ...c.story.flatMap((p) => [p.jp, ...(p.words ?? []).map((w) => w.jp)]),
   ...c.quiz.flatMap((q) => (q.kind === 'choice' ? q.options.map((o) => q.jp.replace(BLANK, o)) : [...q.tiles, ...(q.decoys ?? [])])),
   ...WORDS.map((w) => w.jp),
+  ...Object.values(SENTENCES).map(([jp]) => jp),
 ])
 
 test.each(markups)('parses and has romaji: %s', (m) => {
@@ -39,4 +41,9 @@ test.each(CHAPTERS)('$id: story highlights the grammar and quiz is well formed',
 test('word ids are unique and every word has a memory hook', () => {
   expect(new Set(WORDS.map((w) => w.id)).size).toBe(WORDS.length)
   for (const w of WORDS) expect(w.hook, w.id).toBeTruthy()
+})
+
+test('every word has one highlighted example sentence', () => {
+  expect(Object.keys(SENTENCES).sort()).toEqual(WORDS.map((w) => w.id).sort())
+  for (const [jp] of Object.values(SENTENCES)) expect(jp).toMatch(/\[\[.+\]\]/)
 })

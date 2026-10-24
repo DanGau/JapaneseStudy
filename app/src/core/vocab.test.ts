@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { answer, grade, sm2, startSession, strength } from './vocab'
+import { answer, grade, hardIn, MISS_LIMIT, sm2, startSession, strength, type Session } from './vocab'
 
 test('sm2 stretches intervals on success and resets on a miss', () => {
   let c = sm2(undefined, true, 0)
@@ -15,12 +15,21 @@ test('sm2 stretches intervals on success and resets on a miss', () => {
 
 test('session takes due words and a limited number of new ones', () => {
   const cards = { a: sm2(undefined, true, 0), b: sm2(undefined, true, 5) }
-  const s = startSession(['a', 'b', 'c', 'd', 'e'], cards, 1, 2, 7)
+  const s = startSession(['a', 'b', 'c', 'd', 'e'], cards, 1, 2, 10, 7)
   expect([...s.queue].sort()).toEqual(['a', 'c', 'd'])
+  expect(startSession(['a', 'b', 'c', 'd', 'e'], cards, 1, 2, 2, 7).queue.sort()).toEqual(['a', 'c'])
+})
+
+test('a word missed MISS_LIMIT times leaves the loop as hard', () => {
+  let s: Session = { queue: ['a', 'b'], first: {}, misses: {} }
+  while (s.queue.length) s = answer(s, s.queue[0] === 'b')
+  expect(s.queue).toEqual([])
+  expect(hardIn(s)).toEqual(['a'])
+  expect(s.misses.a).toBe(MISS_LIMIT)
 })
 
 test('a missed word loops to the back and is graded by its first answer', () => {
-  let s = { queue: ['a', 'b', 'c', 'd', 'e'], first: {} }
+  let s: Session = { queue: ['a', 'b', 'c', 'd', 'e'], first: {}, misses: {} }
   s = answer(s, false)
   expect(s.queue).toEqual(['b', 'c', 'd', 'e', 'a'])
   s = answer(answer(answer(s, true), true), true)

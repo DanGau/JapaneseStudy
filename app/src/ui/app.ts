@@ -6,7 +6,7 @@ import { display, el, esc, jp, ro, say, stars } from './html'
 import { quiz } from './quiz'
 import { load, save, today } from './store'
 import { speak } from './speak'
-import { deck } from './words'
+import { deck, hardWords } from './words'
 
 const REVIEW_SIZE = 10
 const IDS = CHAPTERS.map((c) => c.id)
@@ -17,6 +17,7 @@ const commit = () => (save(saved), Object.assign(display, { romaji: saved.romaji
 
 export function start(root: HTMLElement) {
   commit()
+  const words = { get: () => saved, set: (s: typeof saved) => ((saved = s), commit()) }
   const route = () => {
     const [, page, id] = location.hash.split('/')
     const chapter = CHAPTERS.find((c) => c.id === id)
@@ -26,7 +27,8 @@ export function start(root: HTMLElement) {
     else if (page === 'grammar' && chapter) grammar(root, chapter)
     else if (page === 'quiz' && chapter) chapterQuiz(root, chapter)
     else if (page === 'review') review(root)
-    else if (page === 'words') deck(root, { get: () => saved, set: (s) => ((saved = s), commit()) })
+    else if (page === 'words') deck(root, words)
+    else if (page === 'hard') hardWords(root, words)
     else map(root)
   }
   addEventListener('hashchange', route)

@@ -17,6 +17,8 @@ The learner knows kana and basic sentences, and wants grammar that sticks.
 
 Picture flashcards in `app/src/content/words.ts`. A card shows the picture and says "Train is… densha", then moves on by itself.
 
+A session is at most 12 words, at most 5 of them new. A word missed 4 times in one session leaves the loop and goes to **Hard words**, where it is taught in one example sentence (`content/sentences.ts`): English first, try saying it, then hear the Japanese. A word leaves Hard words when you tap "I know it now", or when you get it right first try in a later session.
+
 **Word choice:** every word must be one an adult actually uses in Japan, out and about: on trains, in restaurants and in shops. Use the polite adult form (お手洗い, not トイレ). No textbook filler (tree, bird, apple) and no childish words. Before adding a word, check real usage with a web search.
 
 - **Random order**, due words first, then up to 8 new words per session.

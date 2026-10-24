@@ -237,3 +237,13 @@ mark { background: var(--mark); color: var(--ink); border-radius: 6px; padding: 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+.hard-link { display: block; margin-top: 12px; text-align: center; }
+.hard-list { display: grid; gap: 8px; margin-top: 14px; }
+.hard-row { display: flex; align-items: center; gap: 12px; background: var(--panel); border: 0; border-radius: 16px; padding: 10px 14px; color: var(--ink); font: inherit; text-align: left; }
+.hard-row .emoji { font-size: 34px; }
+.hard-row span:nth-child(2) { flex: 1; }
+.sentence-card .prompt-en { font-size: 22px; }
+.sentence-card .sentence { font-size: 20px; margin-bottom: 8px; }
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; }

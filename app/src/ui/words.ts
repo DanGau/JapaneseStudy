@@ -1,12 +1,15 @@
-import { finishWords, XP_WORD } from '../core/progress'
-import { answer, startSession, strength, type Session } from '../core/vocab'
+import { finishWords, unmarkHard, XP_WORD } from '../core/progress'
+import { answer, hardIn, MISS_LIMIT, startSession, strength, type Session } from '../core/vocab'
 import type { Vocab } from '../core/types'
+import { SENTENCES } from '../content/sentences'
 import { THEME_COLORS, WORDS } from '../content/words'
-import { el, esc, jp, ro } from './html'
+import { el, esc, jp, ro, say } from './html'
 import { speak, speakEnglish } from './speak'
 import { parseSaved, today, type Saved } from './store'
 
-const NEW_PER_SESSION = 8
+/** A session is at most SESSION_SIZE words, of which at most NEW_PER_SESSION are new. */
+const NEW_PER_SESSION = 5
+const SESSION_SIZE = 12
 /** Autoplay timing: “Train is…”, a pause to recall and say it aloud, “densha”, then the next card if the learner doesn't tap Got it. */
 const REVEAL_MS = 3000
 const ADVANCE_MS = 4500
@@ -24,16 +27,19 @@ export function deck(root: HTMLElement, store: Store) {
   const counts = { new: 0, learning: 0, known: 0, learned: 0 }
   for (const id of IDS) counts[strength(cards[id])]++
   const dueNow = IDS.filter((id) => cards[id] && cards[id].due <= day).length
-  const fresh = Math.min(NEW_PER_SESSION, counts.new)
+  const reviews = Math.min(dueNow, SESSION_SIZE)
+  const fresh = Math.min(NEW_PER_SESSION, counts.new, SESSION_SIZE - reviews)
+  const hard = saved.progress.hard
   const screen = el(`<div class="screen deck">
     <header class="bar"><a class="close" href="#/">✕</a></header>
     <p class="kicker">Vocabulary</p>
     <h1>Words</h1>
-    <p class="goal">Each card plays by itself: “Train is… densha.” Tap <b>Got it</b> when you knew the word. Words you don’t tap loop around until you get them all. Then they come back over the next days and weeks, right when you’re about to forget.</p>
+    <p class="goal">Each card plays by itself: “Train is… densha.” Tap <b>Got it</b> when you knew the word. Words you don’t tap loop around. A word missed ${MISS_LIMIT} times moves to <b>Hard words</b>, where you learn it in a sentence instead. Then they come back over the next days and weeks, right when you’re about to forget.</p>
     <div class="tally">
       <span><b>${dueNow}</b> due today</span><span><b>${counts.known + counts.learned}</b> known</span><span><b>${counts.learned}</b> long-term</span>
     </div>
-    ${dueNow + fresh ? `<button class="primary go">Start: ${dueNow} review + ${fresh} new ▶</button>` : '<p class="end">All done for today. Come back tomorrow!</p>'}
+    ${reviews + fresh ? `<button class="primary go">Start: ${reviews} review + ${fresh} new ▶</button>` : '<p class="end">All done for today. Come back tomorrow!</p>'}
+    ${hard.length ? `<a class="secondary hard-link" href="#/hard">🧩 Hard words (${hard.length}): learn them in sentences</a>` : ''}
     <p class="legend"><i class="new"></i>new <i class="learning"></i>learning <i class="known"></i>known <i class="learned"></i>long-term</p>
     <details class="science"><summary>🧠 Why this works</summary><ul>
       <li><b>Recall first.</b> Trying to remember before the answer shows builds memory far better than rereading (the testing effect).</li>
@@ -47,7 +53,7 @@ export function deck(root: HTMLElement, store: Store) {
     <p class="hint">Tap a picture to hear it. Your progress is saved on this device.</p>
     <div class="backup"><button class="secondary save">⬇ Save backup</button><label class="secondary">⬆ Restore<input type="file" accept="application/json" hidden></label></div>
   </div>`)
-  screen.querySelector('.go')?.addEventListener('click', () => play(root, store, startSession(IDS, cards, day, NEW_PER_SESSION, Date.now())))
+  screen.querySelector('.go')?.addEventListener('click', () => play(root, store, startSession(IDS, cards, day, NEW_PER_SESSION, SESSION_SIZE, Date.now())))
   for (const b of screen.querySelectorAll<HTMLElement>('.cell')) {
     b.addEventListener('click', () => {
       const w = BY_ID.get(b.dataset.id!)!
@@ -130,10 +136,12 @@ function play(root: HTMLElement, store: Store, start: Session) {
     const saved = store.get()
     store.set({ ...saved, progress: finishWords(saved.progress, session, day) })
     const firstTry = Object.values(session.first).filter(Boolean).length
+    const hard = hardIn(session)
     root.replaceChildren(el(`<div class="screen results">
       <div class="burst">${'<i></i>'.repeat(24)}</div>
       <p class="big-stars">🎴</p>
-      <p class="detail">You got all ${total} words! ${firstTry} on the first try · +${firstTry * XP_WORD} XP</p>
+      <p class="detail">${hard.length ? `You got ${total - hard.length} of ${total} words.` : `You got all ${total} words!`} ${firstTry} on the first try · +${firstTry * XP_WORD} XP</p>
+      ${hard.length ? `<p class="hint">Moved to Hard words, to learn in a sentence: ${hard.map((id) => BY_ID.get(id)!.emoji + ' ' + esc(BY_ID.get(id)!.en)).join(', ')}</p>` : ''}
       <p class="hint">Words that took a few loops come back tomorrow. The rest come back later and later.</p>
       <a class="primary" href="#/words">Back to words</a>
       <a class="secondary" href="#/">Map</a>
@@ -156,6 +164,58 @@ function play(root: HTMLElement, store: Store, start: Session) {
   })
   root.replaceChildren(screen)
   show()
+}
+
+/** Hard words: each one taught in a sentence. Try to say it in Japanese, then hear it. */
+export function hardWords(root: HTMLElement, store: Store) {
+  const ids = store.get().progress.hard
+  const screen = el(`<div class="screen deck">
+    <header class="bar"><a class="close" href="#/words">✕</a></header>
+    <p class="kicker">Vocabulary</p>
+    <h1>Hard words</h1>
+    <p class="goal">These words didn’t stick on flashcards. Learn each one in a real sentence: read the English, try to say it in Japanese, then listen. Tap <b>I know it now</b> when it sticks.</p>
+    ${ids.length ? `<div class="hard-list">${ids.map((id) => BY_ID.get(id)!).map((w) => `<button class="hard-row" data-id="${w.id}"><span class="emoji">${w.emoji}</span><span><b>${esc(w.en)}</b><br>${ro(w.jp)}</span><span class="go">▶</span></button>`).join('')}</div>`
+      : '<p class="end">No hard words. Nice!</p>'}
+  </div>`)
+  for (const b of screen.querySelectorAll<HTMLElement>('.hard-row')) b.addEventListener('click', () => sentence(root, store, ids.indexOf(b.dataset.id!)))
+  root.replaceChildren(screen)
+}
+
+function sentence(root: HTMLElement, store: Store, i: number) {
+  const ids = store.get().progress.hard
+  if (!ids.length) return hardWords(root, store)
+  const w = BY_ID.get(ids[i % ids.length])!
+  const [jpLine, en] = SENTENCES[w.id]
+  const [a, b] = THEME_COLORS[w.theme]
+  const screen = el(`<div class="screen play">
+    <header class="bar"><a class="close" href="#/hard">✕</a><span class="count">${(i % ids.length) + 1}/${ids.length}</span></header>
+    <div class="card sentence-card" style="background:radial-gradient(circle at 50% 35%, ${b}, ${a})">
+      <div class="emoji">${w.emoji}</div>
+      <p class="prompt-en">“${esc(en)}”</p>
+      <p class="cue">🗣 Try saying it in Japanese</p><div class="timer"><div style="animation-duration:${REVEAL_MS}ms"></div></div>
+      <div class="reveal-word hidden"><div class="sentence">${say(jpLine)}</div><p class="small">${esc(w.en)} = <b>${ro(w.jp)}</b></p>${hookHtml(w)}</div>
+    </div>
+    <div class="row"><button class="secondary again">🔊 Again</button><button class="secondary next">Next ▶</button></div>
+    <button class="primary knew">✓ I know it now</button>
+  </div>`)
+  const card = screen.querySelector<HTMLElement>('.card')!
+  const reveal = () => {
+    card.querySelector('.reveal-word')!.classList.remove('hidden')
+    card.classList.add('revealed')
+    speak(jpLine, 0.8)
+  }
+  const timer = window.setTimeout(() => screen.isConnected && reveal(), REVEAL_MS)
+  card.addEventListener('click', () => (clearTimeout(timer), reveal()))
+  screen.querySelector('.again')!.addEventListener('click', () => (clearTimeout(timer), reveal()))
+  screen.querySelector('.next')!.addEventListener('click', () => (clearTimeout(timer), sentence(root, store, i + 1)))
+  screen.querySelector('.knew')!.addEventListener('click', () => {
+    clearTimeout(timer)
+    const saved = store.get()
+    store.set({ ...saved, progress: unmarkHard(saved.progress, w.id) })
+    sentence(root, store, i)
+  })
+  root.replaceChildren(screen)
+  speakEnglish(en)
 }
 
 const wordHtml = (w: Vocab) => `<p class="word-ro">${ro(w.jp)}</p><p class="word-jp">${jp(w.jp)}</p>`
