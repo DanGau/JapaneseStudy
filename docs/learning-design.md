@@ -17,6 +17,8 @@ The learner knows kana and basic sentences, and wants grammar that sticks.
 
 Picture flashcards in `app/src/content/words.ts`. A card shows the picture and says "Train is… densha", then moves on by itself.
 
+**Word choice:** every word must be one an adult actually uses in Japan, out and about: on trains, in restaurants and in shops. Use the polite adult form (お手洗い, not トイレ). No textbook filler (tree, bird, apple) and no childish words. Before adding a word, check real usage with a web search.
+
 - **Random order**, due words first, then up to 8 new words per session.
 - **Loop until all are got.** One button, **Got it**. A word you don't tap goes to the back of the line; the session ends when every word is got.
 - **SM-2 scheduling** (the SuperMemo/Anki method) grades each word by your first answer that session: intervals of 1 day, 3 days, then growing by the word's ease factor. A miss resets the word to tomorrow.
