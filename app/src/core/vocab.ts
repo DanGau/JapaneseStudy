@@ -20,11 +20,14 @@ export function sm2(card: WordCard | undefined, knew: boolean, day: number): Wor
   return { ...c, reps, interval, ease: c.ease + 0.1, due: day + interval }
 }
 
-/** Up to `size` words: due ones first (most overdue first), topped up with at most `newLimit` unseen ones, in random order. */
-export function startSession(ids: string[], cards: Record<string, WordCard>, day: number, newLimit: number, size: number, seed: number): Session {
-  const due = ids.filter((id) => cards[id] && cards[id].due <= day).sort((a, b) => cards[a].due - cards[b].due).slice(0, size)
-  const fresh = ids.filter((id) => !cards[id]).slice(0, Math.min(newLimit, size - due.length))
-  return { queue: shuffle([...due, ...fresh], seed), first: {}, misses: {} }
+export type Limits = { size: number; words: number; phrases: number }
+
+/** Up to `size` cards: due ones first (most overdue first), topped up with unseen words and phrases within their limits, in random order. */
+export function startSession(ids: string[], cards: Record<string, WordCard>, day: number, limits: Limits, isPhrase: (id: string) => boolean, seed: number): Session {
+  const due = ids.filter((id) => cards[id] && cards[id].due <= day).sort((a, b) => cards[a].due - cards[b].due).slice(0, limits.size)
+  const unseen = ids.filter((id) => !cards[id])
+  const fresh = [...unseen.filter(isPhrase).slice(0, limits.phrases), ...unseen.filter((id) => !isPhrase(id)).slice(0, limits.words)]
+  return { queue: shuffle([...due, ...fresh.slice(0, limits.size - due.length)], seed), first: {}, misses: {} }
 }
 
 /** Answers the showing word. Known words leave the queue; others go to the back until `MISS_LIMIT` misses, when they leave as hard. */

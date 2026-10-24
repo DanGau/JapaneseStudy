@@ -15,9 +15,11 @@ test('sm2 stretches intervals on success and resets on a miss', () => {
 
 test('session takes due words and a limited number of new ones', () => {
   const cards = { a: sm2(undefined, true, 0), b: sm2(undefined, true, 5) }
-  const s = startSession(['a', 'b', 'c', 'd', 'e'], cards, 1, 2, 10, 7)
-  expect([...s.queue].sort()).toEqual(['a', 'c', 'd'])
-  expect(startSession(['a', 'b', 'c', 'd', 'e'], cards, 1, 2, 2, 7).queue.sort()).toEqual(['a', 'c'])
+  const ids = ['a', 'b', 'c', 'd', 'e', 'p1', 'p2']
+  const isPhrase = (id: string) => id.startsWith('p')
+  const s = startSession(ids, cards, 1, { size: 10, words: 2, phrases: 1 }, isPhrase, 7)
+  expect([...s.queue].sort()).toEqual(['a', 'c', 'd', 'p1'])
+  expect(startSession(ids, cards, 1, { size: 2, words: 2, phrases: 1 }, isPhrase, 7).queue.sort()).toEqual(['a', 'p1'])
 })
 
 test('a word missed MISS_LIMIT times leaves the loop as hard', () => {

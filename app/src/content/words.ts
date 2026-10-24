@@ -141,6 +141,33 @@ export const WORDS: Vocab[] = [
   actions('wait', '⏳', 'To wait', '{待|ま}つ'),
 ]
 
+/** Short phrases for shops and restaurants. `hear` ones are what staff say fast, so they play Japanese first at full speed. */
+const say = (theme: Theme) => (id: string, emoji: string, en: string, jp: string, hook: string): Vocab => ({ id, emoji, en, jp, theme, hook, phrase: 'say' })
+const hear = (id: string, emoji: string, en: string, jp: string, hook: string): Vocab => ({ id, emoji, en, jp, theme: 'staff', hook, phrase: 'hear' })
+const order = say('order')
+
+// Ordered so you learn what you say alongside what staff say back.
+export const PHRASES: Vocab[] = [
+  order('one-please', '☝️', 'This one, please.', 'これ を {一|ひと}つ ください。', 'Point and say it. Hitotsu = one thing.'),
+  hear('irasshaimase', '🙇', 'Welcome!', 'いらっしゃいませ。', 'Staff call it out as you walk in. No reply needed.'),
+  order('check-please', '🧾', 'Check, please.', 'お{会計|かいけい} お{願|ねが}い します。', 'Or cross your index fingers into an X.'),
+  hear('need-bag', '🛍️', 'Do you need a bag?', '{袋|ふくろ} は ご{利用|りよう} です か？', 'Answer: fukuro wa daijoubu desu (no thanks).'),
+  order('no-bag', '🚫', 'No bag, thanks.', '{袋|ふくろ} は {大丈夫|だいじょうぶ} です。', 'Daijoubu desu (“I’m fine”) is the polite no.'),
+  hear('heat-it', '♨️', 'Shall I heat it up?', '{温|あたた}めます か？', 'Answer: hai, onegai shimasu, or daijoubu desu.'),
+  order('receipt-please', '📃', 'Receipt, please.', 'レシート ください。', 'Reshiito is the receipt.'),
+  hear('point-card', '🎟️', 'Do you have a point card?', 'ポイント カード は お{持|も}ち です か？', 'Answer: nai desu (I don’t).'),
+  order('card-pay', '💳', 'By card, please.', 'カード で お{願|ねが}い します。', 'De = “by”. Genkin de = by cash.'),
+  hear('how-many', '🔢', 'How many people?', '{何名様|なんめいさま} です か？', 'Answer: futari desu. Or hold up fingers.'),
+  order('two-people', '👥', 'Two people.', '{二人|ふたり} です。', 'People: hitori, futari, then sannin.'),
+  hear('eat-in', '🍽️', 'Will you eat here?', '{店内|てんない} で お{召|め}し{上|あ}がり です か？', 'Answer: hai to eat in, or mochikaeri de to take it out.'),
+  order('takeout', '🥡', 'To go, please.', '{持|も}ち{帰|かえ}り で。', 'Mochikaeri = “carry home”.'),
+  hear('that-all', '✅', 'Will that be all?', '{以上|いじょう} で よろしい です か？', 'Answer: hai.'),
+  order('no-receipt', '🙅', 'No receipt, thanks.', 'レシート は {大丈夫|だいじょうぶ} です。', 'Same polite no: daijoubu desu.'),
+  hear('chopsticks-q', '🥢', 'Would you like chopsticks?', 'お{箸|はし} お{付|つ}け します か？', 'Answer: hai, onegai shimasu, or daijoubu desu.'),
+  order('have-bag', '👜', 'I have a bag.', '{袋|ふくろ} {持|も}って ます。', 'Hold up your bag as you say it.'),
+  order('two-please', '✌️', 'Two of these, please.', 'これ を {二|ふた}つ ください。', 'Futatsu = two things. Mittsu = three.'),
+]
+
 export const THEME_COLORS: Record<Theme, [string, string]> = {
   travel: ['#2b4bd6', '#7aa2ff'],
   food: ['#d6532b', '#ffb36b'],
@@ -149,4 +176,6 @@ export const THEME_COLORS: Record<Theme, [string, string]> = {
   town: ['#6b3fd6', '#b9a4ff'],
   time: ['#20345e', '#e0889a'],
   actions: ['#b8860b', '#ffe08a'],
+  order: ['#0f7c80', '#6fe3d9'],
+  staff: ['#8a2b2b', '#ff8a7a'],
 }

@@ -21,6 +21,7 @@ export type Chapter = { id: string; title: string; jpTitle: string; grammar: Gra
 
 export const BLANK = '＿＿'
 
-export type Theme = 'travel' | 'food' | 'nature' | 'animals' | 'town' | 'time' | 'actions'
+export type Theme = 'travel' | 'food' | 'nature' | 'animals' | 'town' | 'time' | 'actions' | 'order' | 'staff'
 /** A vocabulary word; `id` is stable so saved progress survives edits to the other fields. */
-export type Vocab = { id: string; jp: string; en: string; emoji: string; theme: Theme; hook: string }
+/** `phrase`: a short sentence you say, or one staff say to you (played Japanese first, at full speed). */
+export type Vocab = { id: string; jp: string; en: string; emoji: string; theme: Theme; hook: string; phrase?: 'say' | 'hear' }
