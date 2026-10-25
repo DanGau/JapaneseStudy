@@ -19,7 +19,8 @@ test('session takes due words and a limited number of new ones', () => {
   const isPhrase = (id: string) => id.startsWith('p')
   const s = startSession(ids, cards, 1, { size: 10, words: 2, phrases: 1 }, isPhrase, 7)
   expect([...s.queue].sort()).toEqual(['a', 'c', 'd', 'p1'])
-  expect(startSession(ids, cards, 1, { size: 2, words: 2, phrases: 1 }, isPhrase, 7).queue.sort()).toEqual(['a', 'p1'])
+  expect(startSession(ids, cards, 1, { size: 4, words: 2, phrases: 1 }, isPhrase, 7).queue.sort()).toEqual(['a', 'c', 'd', 'p1'])
+  expect(startSession(ids, cards, 1, { size: 3, words: 2, phrases: 1 }, isPhrase, 7).queue.sort()).toEqual(['c', 'd', 'p1'])
 })
 
 test('a word missed MISS_LIMIT times leaves the loop as hard', () => {

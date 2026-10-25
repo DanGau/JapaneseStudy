@@ -28,9 +28,9 @@ export function deck(root: HTMLElement, store: Store) {
   const counts = { new: 0, learning: 0, known: 0, learned: 0 }
   for (const id of IDS) counts[strength(cards[id])]++
   const dueNow = IDS.filter((id) => cards[id] && cards[id].due <= day).length
-  const reviews = Math.min(dueNow, LIMITS.size)
-  const unseen = IDS.filter((id) => !cards[id])
-  const fresh = Math.min(LIMITS.size - reviews, Math.min(LIMITS.phrases, unseen.filter(isPhrase).length) + Math.min(LIMITS.words, unseen.filter((id) => !isPhrase(id)).length))
+  const preview = startSession(IDS, cards, day, LIMITS, isPhrase, 0).queue
+  const fresh = preview.filter((id) => !cards[id]).length
+  const reviews = preview.length - fresh
   const hard = saved.progress.hard
   const screen = el(`<div class="screen deck">
     <header class="bar"><a class="close" href="#/">✕</a></header>
