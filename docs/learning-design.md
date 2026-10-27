@@ -35,4 +35,4 @@ Chapters live in `app/src/content/chapters.ts`. Japanese text uses furigana mark
 
 ## Prep
 
-Cheat sheets for a specific place the learner is about to visit (`app/src/content/prep.ts`). They hold the real menu or situation translated into English, a recommended order, and the exact phrases, each one tap-to-hear. Build them from the place's real menu, not guesses.
+Cheat sheets for a specific place the learner is about to visit (`app/src/content/prep.ts`). They hold the real menu or situation translated into English, a recommended order, and the exact phrases, each one tap-to-hear. Every sheet also has a **What you’ll hear** section: what staff are likely to say back. Build them from the place's real menu, not guesses.
