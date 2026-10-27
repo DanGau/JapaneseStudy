@@ -3,6 +3,57 @@ import type { Prep } from '../core/types'
 /** Prep sheets: short-term cheat sheets for a specific place, newest first. */
 export const PREPS: Prep[] = [
   {
+    id: 'choku',
+    emoji: '🍜',
+    title: 'CHOKU (Vietnamese)',
+    jpTitle: 'ベトナム {料理|りょうり} {直|ちょく}',
+    where: 'Oizumi, Hokuto, Yamanashi · opens 11:00 · order on your phone, water is self-serve',
+    goal: 'Order something tasty with lots of protein, with extra meat.',
+    sections: [
+      {
+        title: '⭐ The order',
+        note: 'Lunch: the beef pho set, plus a grilled-pork bun cha if you are hungry. Dinner: the beef fried rice plus the fried chicken cartilage. Some dishes are lunch-only or dinner-only. You order by scanning a QR code, so just ask about extra meat if the app doesn’t offer it.',
+        lines: [
+          { jp: 'お{肉|にく} を {多|おお}め に できます か？', en: 'Can I get extra meat?' },
+          { jp: 'お{肉|にく} {大盛|おおも}り は あります か？', en: 'Is there a large-meat option?' },
+          { jp: 'ブンチャー は ありますか？', en: 'Do you have bun cha (grilled pork with noodles)?' },
+          { jp: 'パクチー {多|おお}め で お{願|ねが}い します。', en: 'Extra coriander, please.' },
+          { jp: 'パクチー {抜|ぬ}き で お{願|ねが}い します。', en: 'No coriander, please.' },
+        ],
+      },
+      {
+        title: '🍜 Seen on the menu',
+        lines: [
+          { jp: '{出汁|だし} {自慢|じまん} の {牛肉|ぎゅうにく} の フォー セット', en: 'Beef pho set (phở bò), with our signature broth', price: '¥1,600', note: 'Lunch only. Beef, noodles, herbs, side salad.' },
+          { jp: '{牛肉|ぎゅうにく} と {高菜|たかな} の チャーハン', en: 'Beef and pickled mustard-greens fried rice (cơm chiên dưa bò)', price: '¥1,200', note: 'Dinner only. Solid protein.' },
+          { jp: '{鶏軟骨|とりなんこつ} の {甘辛揚|あまからあ}げ', en: 'Sweet-spicy fried chicken cartilage (sụn gà chiên mắm)', price: '¥680', note: 'Dinner only. Crunchy, great with beer.' },
+        ],
+      },
+      {
+        title: '📸 From reviews (prices not seen)',
+        lines: [
+          { jp: 'ブンチャー', en: 'Bun cha: grilled pork, rice noodles, dipping broth, fried spring roll', note: 'Best protein pick if it’s on.' },
+          { jp: 'ブン ボー フエ', en: 'Bún bò Huế: spicy beef noodle soup with pork balls' },
+          { jp: 'バインミー', en: 'Banh mi: Vietnamese baguette sandwich', note: 'Reviewers love it. Add the table chili sauce.' },
+          { jp: '{生春巻|なまはるま}き', en: 'Fresh spring rolls (with shrimp)' },
+          { jp: '{揚|あ}げ{春巻|はるま}き', en: 'Fried spring rolls' },
+          { jp: 'レモングラス ティー', en: 'Fresh lemongrass tea', note: 'A reviewer favorite. Lightly sweet.' },
+        ],
+      },
+      {
+        title: '💬 At the table',
+        lines: [
+          { jp: 'スマホ で {注文|ちゅうもん} です か？', en: 'Do I order on my phone?' },
+          { jp: 'お{水|みず} は セルフ です か？', en: 'Is water self-serve?' },
+          { jp: 'どこ に {座|すわ}って も いい です か？', en: 'Can I sit anywhere?' },
+          { jp: 'おすすめ は {何|なん} です か？', en: 'What do you recommend?' },
+          { jp: 'お{会計|かいけい} お{願|ねが}い します。', en: 'Check, please.' },
+          { jp: 'ごちそうさま でした。', en: 'Thank you for the meal.' },
+        ],
+      },
+    ],
+  },
+  {
     id: 'fujimoto',
     emoji: '🥩',
     title: 'Yakiniku Fujimoto',
