@@ -143,30 +143,56 @@ export const WORDS: Vocab[] = [
 
 /** Short phrases for shops and restaurants. `hear` ones are what staff say fast, so they play Japanese first at full speed. */
 const say = (theme: Theme) => (id: string, emoji: string, en: string, jp: string, hook: string): Vocab => ({ id, emoji, en, jp, theme, hook, phrase: 'say' })
-const hear = (id: string, emoji: string, en: string, jp: string, hook: string): Vocab => ({ id, emoji, en, jp, theme: 'staff', hook, phrase: 'hear' })
+const hear = (theme: Theme) => (id: string, emoji: string, en: string, jp: string, hook: string): Vocab => ({ id, emoji, en, jp, theme, hook, phrase: 'hear' })
 const order = say('order')
+const staff = hear('staff')
+const climb = say('climb')
+const climbers = hear('climb')
 
 // Ordered so you learn what you say alongside what staff say back.
-export const PHRASES: Vocab[] = [
+const SHOP: Vocab[] = [
   order('one-please', '☝️', 'This one, please.', 'これ を {一|ひと}つ ください。', 'Point and say it. Hitotsu = one thing.'),
-  hear('irasshaimase', '🙇', 'Welcome!', 'いらっしゃいませ。', 'Staff call it out as you walk in. No reply needed.'),
+  staff('irasshaimase', '🙇', 'Welcome!', 'いらっしゃいませ。', 'Staff call it out as you walk in. No reply needed.'),
   order('check-please', '🧾', 'Check, please.', 'お{会計|かいけい} お{願|ねが}い します。', 'Or cross your index fingers into an X.'),
-  hear('need-bag', '🛍️', 'Do you need a bag?', '{袋|ふくろ} は ご{利用|りよう} です か？', 'Answer: fukuro wa daijoubu desu (no thanks).'),
+  staff('need-bag', '🛍️', 'Do you need a bag?', '{袋|ふくろ} は ご{利用|りよう} です か？', 'Answer: fukuro wa daijoubu desu (no thanks).'),
   order('no-bag', '🚫', 'No bag, thanks.', '{袋|ふくろ} は {大丈夫|だいじょうぶ} です。', 'Daijoubu desu (“I’m fine”) is the polite no.'),
-  hear('heat-it', '♨️', 'Shall I heat it up?', '{温|あたた}めます か？', 'Answer: hai, onegai shimasu, or daijoubu desu.'),
+  staff('heat-it', '♨️', 'Shall I heat it up?', '{温|あたた}めます か？', 'Answer: hai, onegai shimasu, or daijoubu desu.'),
   order('receipt-please', '📃', 'Receipt, please.', 'レシート ください。', 'Reshiito is the receipt.'),
-  hear('point-card', '🎟️', 'Do you have a point card?', 'ポイント カード は お{持|も}ち です か？', 'Answer: nai desu (I don’t).'),
+  staff('point-card', '🎟️', 'Do you have a point card?', 'ポイント カード は お{持|も}ち です か？', 'Answer: nai desu (I don’t).'),
   order('card-pay', '💳', 'By card, please.', 'カード で お{願|ねが}い します。', 'De = “by”. Genkin de = by cash.'),
-  hear('how-many', '🔢', 'How many people?', '{何名様|なんめいさま} です か？', 'Answer: futari desu. Or hold up fingers.'),
+  staff('how-many', '🔢', 'How many people?', '{何名様|なんめいさま} です か？', 'Answer: futari desu. Or hold up fingers.'),
   order('two-people', '👥', 'Two people.', '{二人|ふたり} です。', 'People: hitori, futari, then sannin.'),
-  hear('eat-in', '🍽️', 'Will you eat here?', '{店内|てんない} で お{召|め}し{上|あ}がり です か？', 'Answer: hai to eat in, or mochikaeri de to take it out.'),
+  staff('eat-in', '🍽️', 'Will you eat here?', '{店内|てんない} で お{召|め}し{上|あ}がり です か？', 'Answer: hai to eat in, or mochikaeri de to take it out.'),
   order('takeout', '🥡', 'To go, please.', '{持|も}ち{帰|かえ}り で。', 'Mochikaeri = “carry home”.'),
-  hear('that-all', '✅', 'Will that be all?', '{以上|いじょう} で よろしい です か？', 'Answer: hai.'),
+  staff('that-all', '✅', 'Will that be all?', '{以上|いじょう} で よろしい です か？', 'Answer: hai.'),
   order('no-receipt', '🙅', 'No receipt, thanks.', 'レシート は {大丈夫|だいじょうぶ} です。', 'Same polite no: daijoubu desu.'),
-  hear('chopsticks-q', '🥢', 'Would you like chopsticks?', 'お{箸|はし} お{付|つ}け します か？', 'Answer: hai, onegai shimasu, or daijoubu desu.'),
+  staff('chopsticks-q', '🥢', 'Would you like chopsticks?', 'お{箸|はし} お{付|つ}け します か？', 'Answer: hai, onegai shimasu, or daijoubu desu.'),
   order('have-bag', '👜', 'I have a bag.', '{袋|ふくろ} {持|も}って ます。', 'Hold up your bag as you say it.'),
   order('two-please', '✌️', 'Two of these, please.', 'これ を {二|ふた}つ ください。', 'Futatsu = two things. Mittsu = three.'),
 ]
+
+/** The bouldering gym: the front desk, and climbers on the mats. */
+const GYM: Vocab[] = [
+  climbers('first-time-q', '🔰', 'Is this your first time here?', '{初|はじ}めて です か？', 'Answer: hai, hajimete desu.'),
+  climbers('ganba', '📣', 'Go for it! (Allez!)', 'ガンバ！', 'Climbers shout it at someone on a hard move. Shout it for others too.'),
+  climb('first-time', '🙋', 'It’s my first time.', '{初|はじ}めて です。', 'Hajimete = the first time.'),
+  climbers('waiver', '✍️', 'Please fill out this waiver.', 'こちら の {同意書|どういしょ} に ご{記入|きにゅう} ください。', 'Douisho = waiver. Kinyuu = fill in.'),
+  climbers('nice', '👏', 'Nice!', 'ナイス！', 'Said when someone sends a problem or sticks a move.'),
+  climbers('rent-shoes-q', '🧗', 'Will you rent shoes?', 'シューズ は レンタル します か？', 'Answer: hai, onegai shimasu.'),
+  climb('rent-shoes', '👟', 'I’d like to rent shoes.', 'シューズ を {借|か}りたい です。', 'Karitai = want to borrow.'),
+  climbers('shoe-size', '📏', 'What’s your shoe size?', '{靴|くつ} の サイズ は？', 'Sizes are in cm. Answer: nijuu-roku desu (26).'),
+  climb('size-26', '🦶', 'Size 26, please.', '{二十六|にじゅうろく} で お{願|ねが}い します。', 'Nijuu-roku = 26. Nijuu-go = 25, nijuu-nana = 27.'),
+  climbers('which-problem', '🎯', 'Which problem are you trying?', 'どの {課題|かだい} を やって ます か？', 'Kadai = a boulder problem.'),
+  climbers('what-grade', '🔢', 'What grade is it?', '{何級|なんきゅう} です か？', 'Gym grades count down: 10-kyuu is easy, 1-kyuu is hard.'),
+  climbers('sent-it', '🏁', 'Did you send it?', '{完登|かんとう} した？', 'Kantou = topping out a problem.'),
+  climb('can-i-go', '🤚', 'Is it OK if I climb?', '{登|のぼ}って も いい です か？', 'Ask before stepping onto a wall someone is eyeing.'),
+  climb('after-you', '🤝', 'Go ahead.', 'どうぞ。', 'Let someone take their turn first.'),
+  climbers('jug', '✊', 'That one’s a jug.', 'それ、ガバ です よ。', 'Gaba = a big, easy hold. Kachi = a small crimp.'),
+  climb('how-move', '🤔', 'How did you do that move?', 'あの ムーブ、どう やりました か？', 'Asking for beta. Muubu = move.'),
+]
+
+/** Shop and gym phrases alternate, so new phrases come from both. */
+export const PHRASES: Vocab[] = SHOP.flatMap((p, i) => [p, ...(GYM[i] ? [GYM[i]] : [])])
 
 export const THEME_COLORS: Record<Theme, [string, string]> = {
   travel: ['#2b4bd6', '#7aa2ff'],
@@ -178,4 +204,5 @@ export const THEME_COLORS: Record<Theme, [string, string]> = {
   actions: ['#b8860b', '#ffe08a'],
   order: ['#0f7c80', '#6fe3d9'],
   staff: ['#8a2b2b', '#ff8a7a'],
+  climb: ['#5a6b1f', '#c9e36f'],
 }
