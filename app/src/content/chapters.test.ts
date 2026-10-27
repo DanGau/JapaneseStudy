@@ -3,6 +3,7 @@ import { parse } from '../core/furigana'
 import { romanizable } from '../core/romaji'
 import { BLANK } from '../core/types'
 import { CHAPTERS } from './chapters'
+import { PREPS } from './prep'
 import { SENTENCES } from './sentences'
 import { PHRASES, WORDS } from './words'
 
@@ -13,6 +14,7 @@ const markups = CHAPTERS.flatMap((c) => [
   ...c.quiz.flatMap((q) => (q.kind === 'choice' ? q.options.map((o) => q.jp.replace(BLANK, o)) : [...q.tiles, ...(q.decoys ?? [])])),
   ...[...WORDS, ...PHRASES].map((w) => w.jp),
   ...Object.values(SENTENCES).map(([jp]) => jp),
+  ...PREPS.flatMap((p) => [p.jpTitle, ...p.sections.flatMap((s) => s.lines.map((l) => l.jp))]),
 ])
 
 test.each(markups)('parses and has romaji: %s', (m) => {

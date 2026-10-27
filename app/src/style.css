@@ -247,3 +247,11 @@ mark { background: var(--mark); color: var(--ink); border-radius: 6px; padding: 
 .sentence-card .sentence { font-size: 20px; margin-bottom: 8px; }
 .row { display: flex; gap: 8px; }
 .row > * { flex: 1; }
+
+.prep-tile { background: linear-gradient(135deg, #0f7c80, #5a6b1f); }
+.prep .jp-title { font-size: 20px; margin: 0; }
+.prep h2 { font-size: 18px; margin: 22px 0 6px; }
+.prep-line { display: grid; gap: 2px; width: 100%; background: var(--panel); border: 0; border-radius: 14px; padding: 10px 14px; margin-bottom: 8px; color: var(--ink); font: inherit; text-align: left; }
+.prep-en { color: var(--muted); font-size: 14px; }
+.prep-en b { color: var(--ink); float: right; }
+.prep-note { font-size: 13px; color: #ffd27a; }

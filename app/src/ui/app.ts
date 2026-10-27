@@ -6,6 +6,7 @@ import { display, el, esc, jp, ro, say, stars } from './html'
 import { quiz } from './quiz'
 import { load, save, today } from './store'
 import { speak } from './speak'
+import { prepList, prepSheet } from './prep'
 import { deck, hardWords } from './words'
 
 const REVIEW_SIZE = 10
@@ -29,6 +30,8 @@ export function start(root: HTMLElement) {
     else if (page === 'review') review(root)
     else if (page === 'words') deck(root, words)
     else if (page === 'hard') hardWords(root, words)
+    else if (page === 'prep' && id) prepSheet(root, id)
+    else if (page === 'prep') prepList(root)
     else map(root)
   }
   addEventListener('hashchange', route)
@@ -45,6 +48,7 @@ function map(root: HTMLElement) {
       <div class="stats"><span title="Streak">🔥 ${streak(p, day)}</span><span title="XP">✨ ${p.xp}</span></div>
     </header>
     <a class="words-tile" href="#/words"><span class="emoji">🎴</span><span><b>Words</b><br>Picture flashcards that play on their own</span><span class="go">▶</span></a>
+    <a class="words-tile prep-tile" href="#/prep"><span class="emoji">📋</span><span><b>Prep</b><br>Cheat sheets for where you’re about to go</span><span class="go">▶</span></a>
     <div class="actions">
       <a class="review ${dueCount ? '' : 'idle'}" href="${dueCount ? '#/review' : '#/'}">🃏 Review ${dueCount ? `<b>${dueCount} due</b>` : '— all caught up'}</a>
     </div>

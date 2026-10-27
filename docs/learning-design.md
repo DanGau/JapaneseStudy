@@ -32,3 +32,7 @@ A session is at most 12 cards. New ones are at most 4 words and 1 phrase. Phrase
 ## Content
 
 Chapters live in `app/src/content/chapters.ts`. Japanese text uses furigana markup: `{漢字|かんじ}` for readings, `[[...]]` to highlight the grammar, and spaces between words (romaji and kana display use them).
+
+## Prep
+
+Cheat sheets for a specific place the learner is about to visit (`app/src/content/prep.ts`). They hold the real menu or situation translated into English, a recommended order, and the exact phrases, each one tap-to-hear. Build them from the place's real menu, not guesses.
