@@ -14,8 +14,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   layer('core', '\./', 'core/ imports only core/. Pass data in instead.'),
   layer('content', '\./|\.\./core/', 'content/ imports only content/ and core/.'),
-  layer('art', '\./|\.\./core/', 'art/ imports only art/ and core/.'),
-  layer('ui', '\./|\.\./(core|content|art)/', 'ui/ imports only ui/, content/, art/ and core/.'),
+  layer('ui', '\./|\.\./(core|content)/', 'ui/ imports only ui/, content/ and core/.'),
   {
     files: ['src/core/**/*.ts'],
     ignores: ['**/*.test.ts'],

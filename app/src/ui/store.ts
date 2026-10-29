@@ -4,11 +4,13 @@ export type Saved = { progress: Progress; romaji: boolean; kanji: boolean }
 
 const KEY = 'japanese-study'
 
-/** Fills fields added since the data was saved. Throws on data that isn't a save. */
+const pick = (p: Progress): Progress => ({ xp: p.xp, streak: p.streak, lastDay: p.lastDay, words: p.words, hard: p.hard })
+
+/** Fills fields added since the data was saved and drops retired ones. Throws on data that isn't a save. */
 export function parseSaved(raw: string): Saved {
   const data = JSON.parse(raw)
   if (typeof data?.progress?.xp !== 'number') throw new Error('Not a Kitsune Road backup')
-  return { romaji: true, kanji: false, ...data, progress: { ...empty(), ...data.progress } }
+  return { romaji: true, kanji: false, ...data, progress: pick({ ...empty(), ...data.progress }) }
 }
 
 export function load(): Saved {

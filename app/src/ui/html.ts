@@ -33,5 +33,3 @@ export function el(html: string): HTMLElement {
   t.innerHTML = html.trim()
   return t.content.firstElementChild as HTMLElement
 }
-
-export const stars = (n: number) => '★'.repeat(n) + '☆'.repeat(3 - n)
