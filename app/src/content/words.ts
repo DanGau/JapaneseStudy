@@ -3,6 +3,13 @@ import type { Theme, Vocab } from '../core/types'
 const w = (theme: Theme) => (id: string, emoji: string, en: string, jp: string): Vocab => ({ id, emoji, en, jp, theme, hook: HOOKS[id] })
 /** Keyword-method memory hooks: an English sound-alike tied to the meaning. <i> marks the sound-alike. */
 const HOOKS: Record<string, string> = {
+  decaf: '“Decaf” said the Japanese way: de-ka-fe.',
+  caffeineless: '“Caffeine-less”: the word on many labels and menus.',
+  lightroast: '<i>Asa</i> means shallow: a shallow roast. Asairi.',
+  darkroast: '<i>Fuka</i> means deep: a deep roast. Fukairi.',
+  acidity: '<i>Sun, me</i>: the sharp, sunny tang of a light roast. Sanmi.',
+  milk: '“Milk” said the Japanese way.',
+  sugar: '<i>Sat, oh</i>: sat down and stirred in the satou.',
   restroom: 'The polite word adults use, literally “hand-wash place”. Wash your hands at the otearai.',
   bill: '“<i>Oh, kay, kay</i>”: okay, I’ll pay the okaikei.',
   receipt: '“Receipt” said the Japanese way.',
@@ -77,6 +84,14 @@ const actions = w('actions')
 
 // Ordered roughly by usefulness: new words are introduced in this order.
 export const WORDS: Vocab[] = [
+  food('coffee', '☕', 'Coffee', 'コーヒー'),
+  food('decaf', '🌙', 'Decaf', 'デカフェ'),
+  food('caffeineless', '🚫', 'Caffeine-free', 'カフェインレス'),
+  food('lightroast', '🌱', 'Light roast', '{浅煎|あさい}り'),
+  food('darkroast', '🔥', 'Dark roast', '{深煎|ふかい}り'),
+  food('acidity', '🍋', 'Acidity, sourness', '{酸味|さんみ}'),
+  food('milk', '🥛', 'Milk', 'ミルク'),
+  food('sugar', '🍬', 'Sugar', '{砂糖|さとう}'),
   travel('train', '🚃', 'Train', '{電車|でんしゃ}'),
   travel('station', '🚉', 'Station', '{駅|えき}'),
   town('restroom', '🚻', 'Restroom', 'お{手洗|てあら}い'),
@@ -126,7 +141,6 @@ export const WORDS: Vocab[] = [
   town('temple', '🛕', 'Temple', 'お{寺|てら}'),
   town('house', '🏠', 'House, home', '{家|いえ}'),
   town('hospital', '🏥', 'Hospital', '{病院|びょういん}'),
-  food('coffee', '☕', 'Coffee', 'コーヒー'),
   food('beer', '🍺', 'Beer', 'ビール'),
   food('fish', '🐟', 'Fish', '{魚|さかな}'),
   food('delicious', '😋', 'Delicious', 'おいしい'),
@@ -171,6 +185,17 @@ const SHOP: Vocab[] = [
   order('two-please', '✌️', 'Two of these, please.', 'これ を {二|ふた}つ ください。', 'Futatsu = two things. Mittsu = three.'),
 ]
 
+/** Coffee, decaf above all. These come first among new phrases. */
+const CAFE: Vocab[] = [
+  order('have-decaf', '🌙', 'Do you have decaf?', 'デカフェ は あります か？', 'Ask this first at any cafe.'),
+  staff('no-decaf', '🙏', 'Sorry, we don’t have decaf.', 'デカフェ は ございません。', 'Gozaimasen = we don’t have it, politely.'),
+  order('decaf-please', '☕', 'Decaf, please.', 'デカフェ で お{願|ねが}い します。', 'De onegai shimasu: “I’ll go with”.'),
+  staff('hot-or-iced', '🧊', 'Hot or iced?', 'ホット と アイス、どちら に します か？', 'Answer: hotto de, or aisu de.'),
+  order('is-decaf', '🔍', 'Is this decaf?', 'これ は デカフェ です か？', 'Check before you drink, and when it’s handed over.'),
+  staff('what-size', '📏', 'What size?', 'サイズ は いかが なさいます か？', 'Answer: esu, emu, or eru saizu de.'),
+  order('no-caffeine', '⛔', 'I can’t have caffeine.', 'カフェイン が {飲|の}めない ん です。', 'Nomenai = can’t drink. Says it matters, not just a preference.'),
+]
+
 /** The bouldering gym: the front desk, and climbers on the mats. */
 const GYM: Vocab[] = [
   climbers('first-time-q', '🔰', 'Is this your first time here?', '{初|はじ}めて です か？', 'Answer: hai, hajimete desu.'),
@@ -192,7 +217,7 @@ const GYM: Vocab[] = [
 ]
 
 /** Shop and gym phrases alternate, so new phrases come from both. */
-export const PHRASES: Vocab[] = SHOP.flatMap((p, i) => [p, ...(GYM[i] ? [GYM[i]] : [])])
+export const PHRASES: Vocab[] = [...CAFE, ...SHOP.flatMap((p, i) => [p, ...(GYM[i] ? [GYM[i]] : [])])]
 
 export const THEME_COLORS: Record<Theme, [string, string]> = {
   travel: ['#2b4bd6', '#7aa2ff'],
