@@ -1,12 +1,7 @@
 /** One natural example sentence per word, for the Hard words mode. [[...]] marks the word. */
 export const SENTENCES: Record<string, [jp: string, en: string]> = {
+  latte: ['[[ラテ]] を {一|ひと}つ ください。', 'One latte, please.'],
   decaf: ['[[デカフェ]] の ラテ を ください。', 'A decaf latte, please.'],
-  caffeineless: ['これ は [[カフェインレス]] です か？', 'Is this caffeine-free?'],
-  lightroast: ['[[{浅煎|あさい}り]] の デカフェ は あります か？', 'Do you have a light-roast decaf?'],
-  darkroast: ['[[{深煎|ふかい}り]] が {好|す}き です。', 'I like dark roast.'],
-  acidity: ['[[{酸味|さんみ}]] が {少|すく}ない の は どれ です か？', 'Which one has less acidity?'],
-  milk: ['[[ミルク]] を {少|すこ}し ください。', 'A little milk, please.'],
-  sugar: ['[[{砂糖|さとう}]] は いりません。', 'No sugar, thanks.'],
   train: ['この [[{電車|でんしゃ}]] は {新宿|しんじゅく} に {行|い}きます か？', 'Does this train go to Shinjuku?'],
   station: ['[[{駅|えき}]] は どこ です か？', 'Where is the station?'],
   restroom: ['すみません、[[お{手洗|てあら}い]] は どこ です か？', 'Excuse me, where is the restroom?'],
