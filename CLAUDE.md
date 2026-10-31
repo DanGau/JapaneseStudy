@@ -13,6 +13,7 @@ Architecture rules: [docs/architecture/CLAUDE.md](docs/architecture/CLAUDE.md). 
 5. **Progressive disclosure.** This file stays under 50 lines. Detail goes in `docs/`, linked from here.
 6. **Commit and push after every change**, straight onto `main`.
 7. **End every finished piece of work with the live link**, https://dangau.github.io/JapaneseStudy/, so the human can tap it and see the change.
+8. **Never lose saved progress.** Updates must keep XP, streak, word cards and hard words. Keep word ids fixed, and migrate in `parseSaved` when the save format changes.
 
 ## Commands
 

@@ -18,6 +18,8 @@ const ALL = [...WORDS, ...PHRASES]
 const BY_ID = new Map(ALL.map((w) => [w.id, w]))
 const IDS = ALL.map((w) => w.id)
 const isPhrase = (id: string) => !!BY_ID.get(id)!.phrase
+/** Saved hard words that still exist; a word removed from the content stays in the save but isn't shown. */
+const hardIds = (s: Saved) => s.progress.hard.filter((id) => BY_ID.has(id))
 
 type Store = { get: () => Saved; set: (s: Saved) => void }
 
@@ -31,7 +33,7 @@ export function deck(root: HTMLElement, store: Store) {
   const preview = startSession(IDS, cards, day, LIMITS, isPhrase, 0).queue
   const fresh = preview.filter((id) => !cards[id]).length
   const reviews = preview.length - fresh
-  const hard = saved.progress.hard
+  const hard = hardIds(saved)
   const screen = el(`<div class="screen deck">
     <header class="bar"><a class="close" href="#/">✕</a></header>
     <p class="kicker">Vocabulary</p>
@@ -170,7 +172,7 @@ function play(root: HTMLElement, store: Store, start: Session) {
 
 /** Hard words: each one taught in a sentence. Try to say it in Japanese, then hear it. */
 export function hardWords(root: HTMLElement, store: Store) {
-  const ids = store.get().progress.hard
+  const ids = hardIds(store.get())
   const screen = el(`<div class="screen deck">
     <header class="bar"><a class="close" href="#/words">✕</a></header>
     <p class="kicker">Vocabulary</p>
@@ -184,7 +186,7 @@ export function hardWords(root: HTMLElement, store: Store) {
 }
 
 function sentence(root: HTMLElement, store: Store, i: number) {
-  const ids = store.get().progress.hard
+  const ids = hardIds(store.get())
   if (!ids.length) return hardWords(root, store)
   const w = BY_ID.get(ids[i % ids.length])!
   const [jpLine, en] = SENTENCES[w.id] ?? [`[[${w.jp}]]`, w.en]
