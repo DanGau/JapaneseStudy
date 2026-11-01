@@ -21,6 +21,11 @@ export function start(root: HTMLElement) {
     else home(root)
   }
   addEventListener('hashchange', route)
+  // A link to the current hash fires no hashchange, but a session or results screen still has to leave.
+  root.addEventListener('click', (e) => {
+    const link = (e.target as HTMLElement).closest('a')
+    if (link?.hash === location.hash) route()
+  })
   route()
 }
 

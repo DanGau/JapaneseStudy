@@ -148,7 +148,7 @@ function play(root: HTMLElement, store: Store, start: Session) {
       ${hard.length ? `<p class="hint">Moved to Hard words, to learn in a sentence: ${hard.map((id) => BY_ID.get(id)!.emoji + ' ' + esc(BY_ID.get(id)!.en)).join(', ')}</p>` : ''}
       <p class="hint">Words that took a few loops come back tomorrow. The rest come back later and later.</p>
       <a class="primary" href="#/words">Back to words</a>
-      <a class="secondary" href="#/">Map</a>
+      <a class="secondary" href="#/">Home</a>
     </div>`))
   }
 
