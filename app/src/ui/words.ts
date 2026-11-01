@@ -4,12 +4,12 @@ import type { Vocab } from '../core/types'
 import { SENTENCES } from '../content/sentences'
 import { PHRASES, THEME_COLORS, WORDS } from '../content/words'
 import { el, esc, jp, ro, say } from './html'
-import { speak, speakEnglish } from './speak'
+import { speak } from './speak'
 import { parseSaved, today, type Saved } from './store'
 
 /** A session is at most `size` cards; new ones are at most `words` words and `phrases` phrases. */
 const LIMITS = { size: 12, words: 4, phrases: 1 }
-/** Autoplay timing: “Train is…”, a pause to recall and say it aloud, “densha”, then the next card if the learner doesn't tap Got it. */
+/** Autoplay timing: the picture and English, a pause to recall and say it aloud, “densha”, then the next card if the learner doesn't tap Got it. */
 const REVEAL_MS = 3000
 const ADVANCE_MS = 4500
 /** Words answered right this many times in a row sometimes play reversed (Japanese first). */
@@ -38,7 +38,7 @@ export function deck(root: HTMLElement, store: Store) {
     <header class="bar"><a class="close" href="#/">✕</a></header>
     <p class="kicker">Vocabulary</p>
     <h1>Words</h1>
-    <p class="goal">Each card plays by itself: “Train is… densha.” Each session adds up to 4 new words and 1 short phrase for shops and restaurants. Phrases staff say to you play in Japanese first, at full speed. Tap <b>Got it</b> when you knew the word. Words you don’t tap loop around. A word missed ${MISS_LIMIT} times moves to <b>Hard words</b>, where you learn it in a sentence instead. Then they come back over the next days and weeks, right when you’re about to forget.</p>
+    <p class="goal">Each card plays by itself: see “Train”, say it, then hear “densha”. Each session adds up to 4 new words and 1 short phrase for shops and restaurants. Phrases staff say to you play in Japanese first, at full speed. Tap <b>Got it</b> when you knew the word. Words you don’t tap loop around. A word missed ${MISS_LIMIT} times moves to <b>Hard words</b>, where you learn it in a sentence instead. Then they come back over the next days and weeks, right when you’re about to forget.</p>
     <div class="tally">
       <span><b>${dueNow}</b> due today</span><span><b>${counts.known + counts.learned}</b> known</span><span><b>${counts.learned}</b> long-term</span>
     </div>
@@ -117,15 +117,13 @@ function play(root: HTMLElement, store: Store, start: Session) {
     card.classList.toggle('looped', w.id in session.first)
     card.classList.toggle('reversed', reversed)
     if (reversed) speak(w.jp, rate(w))
-    else speakEnglish(w.phrase ? w.en : `${w.en} is`)
     if (!paused) later(REVEAL_MS, reveal)
   }
   const reveal = () => {
     card.querySelector('.reveal-word')!.classList.remove('hidden')
     card.classList.add('revealed')
     const w = BY_ID.get(session.queue[0])!
-    if (card.classList.contains('reversed')) speakEnglish(w.en)
-    else speak(w.jp, rate(w))
+    if (!card.classList.contains('reversed')) speak(w.jp, rate(w))
     if (!paused) later(ADVANCE_MS, () => next(false))
   }
   const next = (knew: boolean) => {
@@ -219,7 +217,6 @@ function sentence(root: HTMLElement, store: Store, i: number) {
     sentence(root, store, i)
   })
   root.replaceChildren(screen)
-  speakEnglish(en)
 }
 
 /** Single words play slowly; phrases play at the speed staff actually talk. */

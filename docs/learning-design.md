@@ -10,7 +10,7 @@ The learner knows kana and basic sentences, and learns best from flashcards.
 
 ## Words
 
-Picture flashcards in `app/src/content/words.ts`. A card shows the picture and says "Train is… densha", then moves on by itself.
+Picture flashcards in `app/src/content/words.ts`. A card shows the picture and English silently, then plays the Japanese ("densha") and moves on by itself. Audio is Japanese only.
 
 A session is at most 12 cards. New ones are at most 4 words and 1 phrase. Phrases (`PHRASES` in `words.ts`) are short shop and restaurant sentences: ones you say, and ones staff say to you. Staff ones play Japanese first at full speed, to train fast listening. A word missed 4 times in one session leaves the loop and goes to **Hard words**, where it is taught in one example sentence (`content/sentences.ts`): English first, try saying it, then hear the Japanese. A word leaves Hard words when you tap "I know it now", or when you get it right first try in a later session.
 
