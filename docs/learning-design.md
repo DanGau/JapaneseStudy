@@ -22,6 +22,7 @@ A session is at most 12 cards. New ones are at most 4 words and 1 phrase. Phrase
 - **Recall first, aloud.** A 3-second countdown with a "say it out loud" cue comes before the reveal (testing effect, production effect).
 - **Memory hooks.** Each word has a keyword-method hook: an English sound-alike tied to the meaning. `content.test.ts` requires one per word.
 - **Both directions.** Words got twice in a row sometimes play Japanese first, with the picture hidden until the reveal.
+- **Works offline.** `public/sw.js` caches every file the app loads; online, the network wins so updates arrive.
 - **Saved on the device**, with a JSON backup and restore on the Words screen. Word ids stay fixed so saves survive content edits.
 
 ## Content
